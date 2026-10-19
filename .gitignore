@@ -1,0 +1,15 @@
+# Compilados
+out/
+*.class
+go/nodo-go
+go/*.exe
+__pycache__/
+
+# Dataset de entrenamiento: se publica como Release (datos_train.zip)
+data/train.bin
+para_release/
+
+# Resultados de corridas nuevas (los de ejemplo están en results/ejemplo_vm/)
+results/*.csv
+results/*.png
+data/model_anterior.bin

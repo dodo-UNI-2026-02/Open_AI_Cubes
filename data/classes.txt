@@ -1,0 +1,4 @@
+avion
+automovil
+gato
+barco

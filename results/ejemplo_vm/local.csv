@@ -1,0 +1,7 @@
+escenario,lenguaje,maquinas,hilos,imagenes,epocas,lote,segundos,img_por_s,perdida,acierto_train,acierto_test
+secuencial,java,1,1,1024,1,64,6.184,165.58,1.2444,0.4395,NaN
+secuencial,go,1,1,1024,1,64,5.616,182.34,1.2444,0.4395,NaN
+secuencial,python,1,1,1024,1,64,55.644,18.40,1.2444,0.4395,NaN
+paralelo,java,1,4,1024,1,64,2.824,362.66,1.2444,0.4395,NaN
+paralelo,go,1,4,1024,1,64,1.884,543.55,1.2444,0.4395,NaN
+paralelo,python,1,4,1024,1,64,17.948,57.05,1.2444,0.4395,NaN
