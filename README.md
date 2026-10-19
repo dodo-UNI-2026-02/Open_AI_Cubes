@@ -15,6 +15,10 @@ protocolo binario propio. No se usa HTTP, WebSocket, Socket.IO, middleware ni li
                               └──────────────────────────┘
 ```
 
+## Versión mínima (en prueba)
+
+La carpeta [`minimo/`](minimo/) tiene la misma idea en 6 archivos y unas 1 500 líneas, en lugar de unas 9 200. Usa la misma CNN y el mismo `data/model.bin`, con un protocolo más simple; ver su [README](minimo/README.md). No es compatible con los nodos de esta versión: cada servidor trabaja con sus propios nodos. Si el equipo la aprueba, reemplazará a esta versión, que seguirá disponible en el Release [v1.0](../../releases/tag/v1.0).
+
 ## Videos
 
 | Video | Enlace |

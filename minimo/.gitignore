@@ -1,0 +1,13 @@
+# Compilados y binarios (el binario Linux de nodo-go va en el Release)
+out/
+nodo-go
+nodo-go.exe
+__pycache__/
+
+# Salidas de corridas nuevas (los CSV de ejemplo están en capturas/)
+/resultados.csv
+/carga.csv
+/*.png
+*.log
+*.tmp
+demo/
