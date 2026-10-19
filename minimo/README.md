@@ -11,7 +11,7 @@ La misma idea que la versión completa, en 6 archivos (más `graficas.py`, que n
 | `Nodo.java` | 60 | Nodo Java |
 | `nodo.go` | 374 | Nodo Go: misma CNN, con goroutines |
 | `nodo.py` | 236 | Nodo Python: misma CNN, con procesos (el GIL impide calcular en paralelo con hilos) |
-| `Cliente.java` | 93 | Chat de escritorio (Swing) y prueba de carga |
+| `Cliente.java` | 295 | Chat de escritorio (Swing) con burbujas: eliges o arrastras una foto, pulsas Identificar y el bot responde con la clase, la confianza, el nodo que la calculó y la latencia. También hace la prueba de carga |
 
 ## Cómo funciona
 

@@ -11,3 +11,6 @@ __pycache__/
 *.log
 *.tmp
 demo/
+
+# Maquetas de interfaz para elegir (no van al repo)
+propuestas_ui/
