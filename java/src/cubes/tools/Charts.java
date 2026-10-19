@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,8 +28,10 @@ import javax.imageio.ImageIO;
  *
  * Uso: java -cp out cubes.tools.Charts results
  * Lee results/local.csv, results/distribuido.csv y results/carga.csv (los que existan) y escribe
- * matriz_tiempos.png, escalabilidad_tiempo.png, escalabilidad_speedup.png, carga_latencia.png,
- * carga_throughput.png en la misma carpeta.
+ * matriz_tiempos.png, escalabilidad_tiempo.png, escalabilidad_speedup.png, escalabilidad_eficiencia.png,
+ * costo_comunicacion.png, carga_latencia.png y carga_throughput.png en la misma carpeta.
+ *
+ * Si un mismo caso se corrió varias veces (REPS en los scripts de bench), se usa la mediana.
  */
 public final class Charts {
 
@@ -57,7 +60,8 @@ public final class Charts {
                     continue;
                 }
                 if (parts[0].equals(header[0])) {
-                    continue; // cabecera repetida
+                    header = parts; // cabecera repetida (o nueva, con más columnas)
+                    continue;
                 }
                 Map<String, String> row = new HashMap<String, String>();
                 for (int i = 0; i < header.length && i < parts.length; i++) {
@@ -69,6 +73,23 @@ public final class Charts {
             r.close();
         }
         return rows;
+    }
+
+    static double median(List<Double> v) {
+        List<Double> c = new ArrayList<Double>(v);
+        Collections.sort(c);
+        int n = c.size();
+        if (n == 0) {
+            return Double.NaN;
+        }
+        return n % 2 == 1 ? c.get(n / 2) : (c.get(n / 2 - 1) + c.get(n / 2)) / 2;
+    }
+
+    private static void addTo(Map<Double, List<Double>> m, double x, double y) {
+        if (!m.containsKey(x)) {
+            m.put(x, new ArrayList<Double>());
+        }
+        m.get(x).add(y);
     }
 
     static double num(Map<String, String> row, String key) {
@@ -361,6 +382,7 @@ public final class Charts {
         cats.add("paralelo_distribuido");
         Map<String, Map<String, Double>> values = new LinkedHashMap<String, Map<String, Double>>();
         Map<String, Double> bestMachines = new HashMap<String, Double>();
+        Map<String, List<Double>> runs = new HashMap<String, List<Double>>();
         List<Map<String, String>> all = new ArrayList<Map<String, String>>(local);
         all.addAll(dist);
         for (Map<String, String> r : all) {
@@ -375,61 +397,126 @@ public final class Charts {
                 continue;
             }
             String lang = caseName(rawLang);
-            double m = num(r, "maquinas");
+            // en la matriz va la corrida más grande: más nodos en los distribuidos, más hilos en los locales
+            double m = distributed ? num(r, "maquinas") : num(r, "hilos");
             String key = esc + "|" + lang;
             Double prev = bestMachines.get(key);
             if (prev != null && m < prev) {
                 continue;
             }
+            if (prev == null || m > prev) {
+                runs.put(key, new ArrayList<Double>());
+            }
             bestMachines.put(key, m);
+            runs.get(key).add(num(r, "segundos"));
             if (!values.containsKey(lang)) {
                 values.put(lang, new HashMap<String, Double>());
             }
-            values.get(lang).put(esc, num(r, "segundos"));
+            values.get(lang).put(esc, median(runs.get(key)));
         }
         barChart(new File(dir, "matriz_tiempos.png"), "Tiempo de entrenamiento por escenario y caso (menos es mejor)",
                 "segundos (escala log)", cats, sortByName(values), true, "%.1f s");
 
-        // 2) Escalabilidad: tiempo vs. número de nodos y speedup = T_secuencial / T, donde T_secuencial
-        //    es la corrida local de 1 hilo del mismo lenguaje (para el clúster mixto, la de Java).
-        Map<String, Double> seq = new HashMap<String, Double>();
+        // 2) Escalabilidad: tiempo vs. número de nodos y speedup = throughput / throughput secuencial, donde el
+        //    secuencial es la corrida local de 1 hilo del mismo lenguaje (para el clúster mixto, la de Java).
+        //    Con el mismo número de imágenes equivale a T_secuencial / T.
+        Map<String, List<Double>> seqRuns = new HashMap<String, List<Double>>();
         for (Map<String, String> r : local) {
             if ("secuencial".equals(r.get("escenario"))) {
-                seq.put(r.get("lenguaje").toLowerCase(), num(r, "segundos"));
+                String lang = r.get("lenguaje").toLowerCase();
+                if (!seqRuns.containsKey(lang)) {
+                    seqRuns.put(lang, new ArrayList<Double>());
+                }
+                seqRuns.get(lang).add(num(r, "img_por_s"));
             }
         }
-        Map<String, TreeMap<Double, Double>> byKey = new TreeMap<String, TreeMap<Double, Double>>();
+        Map<String, Double> seq = new HashMap<String, Double>();
+        for (Map.Entry<String, List<Double>> e : seqRuns.entrySet()) {
+            seq.put(e.getKey(), median(e.getValue()));
+        }
+        Map<String, TreeMap<Double, List<Double>>> byKey = new TreeMap<String, TreeMap<Double, List<Double>>>();
+        // speedup con img/s (y no con segundos) para poder comparar corridas con distinta cantidad de imágenes
+        Map<String, TreeMap<Double, List<Double>>> ipsByKey = new TreeMap<String, TreeMap<Double, List<Double>>>();
+        Map<String, TreeMap<Double, List<Double>>> commByKey = new TreeMap<String, TreeMap<Double, List<Double>>>();
         Map<String, Double> baseOf = new HashMap<String, Double>();
+        // escenario paralelo en 1 máquina: si bench_local probó varios H (THREADS="1 2 4 8"), se ve la curva por hilos
+        for (Map<String, String> r : local) {
+            String lang = r.get("lenguaje").toLowerCase();
+            String key = "local 1 maquina / " + seriesName(lang);
+            if (!byKey.containsKey(key)) {
+                byKey.put(key, new TreeMap<Double, List<Double>>());
+                ipsByKey.put(key, new TreeMap<Double, List<Double>>());
+            }
+            addTo(byKey.get(key), num(r, "hilos"), num(r, "segundos"));
+            addTo(ipsByKey.get(key), num(r, "hilos"), num(r, "img_por_s"));
+            Double b = seq.get(lang);
+            baseOf.put(key, b == null ? Double.NaN : b);
+        }
         for (Map<String, String> r : dist) {
             String lang = r.get("lenguaje").toLowerCase();
             String key = r.get("escenario").replace("_", " ") + " / " + seriesName(lang);
             if (!byKey.containsKey(key)) {
-                byKey.put(key, new TreeMap<Double, Double>());
+                byKey.put(key, new TreeMap<Double, List<Double>>());
+                ipsByKey.put(key, new TreeMap<Double, List<Double>>());
+                commByKey.put(key, new TreeMap<Double, List<Double>>());
             }
             // eje X = núcleos usados en total (nodos × hilos por nodo)
-            byKey.get(key).put(num(r, "maquinas") * num(r, "hilos"), num(r, "segundos"));
+            double x = num(r, "maquinas") * num(r, "hilos");
+            addTo(byKey.get(key), x, num(r, "segundos"));
+            addTo(ipsByKey.get(key), x, num(r, "img_por_s"));
+            double comp = num(r, "computo_s"), comm = num(r, "comunicacion_s");
+            if (!Double.isNaN(comp) && !Double.isNaN(comm) && comp + comm > 0) {
+                addTo(commByKey.get(key), x, 100 * comm / (comp + comm));
+            }
             Double b = seq.get(lang.contains("+") ? "java" : lang);
             baseOf.put(key, b == null ? Double.NaN : b);
         }
         List<Series> time = new ArrayList<Series>();
         List<Series> speed = new ArrayList<Series>();
-        for (Map.Entry<String, TreeMap<Double, Double>> e : byKey.entrySet()) {
+        List<Series> eff = new ArrayList<Series>();
+        for (Map.Entry<String, TreeMap<Double, List<Double>>> e : byKey.entrySet()) {
+            if (e.getKey().startsWith("local") && e.getValue().size() < 3) {
+                continue; // con solo 1 y H hilos la curva local no aporta: ya está en la matriz
+            }
             Series st = new Series(e.getKey());
             Series ss = new Series(e.getKey());
+            Series se = new Series(e.getKey());
             double base = baseOf.get(e.getKey());
-            for (Map.Entry<Double, Double> p : e.getValue().entrySet()) {
-                st.points.add(new double[] {p.getKey(), p.getValue()});
+            for (Map.Entry<Double, List<Double>> p : e.getValue().entrySet()) {
+                double t = median(p.getValue());
+                double ips = median(ipsByKey.get(e.getKey()).get(p.getKey()));
+                st.points.add(new double[] {p.getKey(), t});
                 if (!Double.isNaN(base)) {
-                    ss.points.add(new double[] {p.getKey(), base / p.getValue()});
+                    ss.points.add(new double[] {p.getKey(), ips / base});
+                    // eficiencia = speedup / núcleos; 1 sería un reparto perfecto sin costo de paralelizar
+                    se.points.add(new double[] {p.getKey(), ips / base / p.getKey()});
                 }
             }
             time.add(st);
             speed.add(ss);
+            eff.add(se);
         }
         lineChart(new File(dir, "escalabilidad_tiempo.png"), "Tiempo vs. nucleos usados", "nucleos usados (nodos x hilos)",
                 "segundos", time, false, false);
-        lineChart(new File(dir, "escalabilidad_speedup.png"), "Speedup = T secuencial / T (mismo lenguaje con 1 hilo)",
+        lineChart(new File(dir, "escalabilidad_speedup.png"), "Speedup = (img/s) / (img/s secuencial del mismo lenguaje)",
                 "nucleos usados (nodos x hilos)", "speedup", speed, false, true);
+        lineChart(new File(dir, "escalabilidad_eficiencia.png"), "Eficiencia = speedup / nucleos (1 = reparto perfecto)",
+                "nucleos usados (nodos x hilos)", "eficiencia", eff, false, false);
+        List<Series> commSeries = new ArrayList<Series>();
+        for (Map.Entry<String, TreeMap<Double, List<Double>>> e : commByKey.entrySet()) {
+            Series sc = new Series(e.getKey());
+            for (Map.Entry<Double, List<Double>> p : e.getValue().entrySet()) {
+                sc.points.add(new double[] {p.getKey(), median(p.getValue())});
+            }
+            if (!sc.points.isEmpty()) {
+                commSeries.add(sc);
+            }
+        }
+        if (!commSeries.isEmpty()) {
+            lineChart(new File(dir, "costo_comunicacion.png"),
+                    "Parte del tiempo en comunicacion y agregacion (no en computo)", "nucleos usados (nodos x hilos)",
+                    "% del tiempo", commSeries, false, false);
+        }
 
         // 3) Pruebas de carga
         Map<String, Series> lat = new LinkedHashMap<String, Series>();

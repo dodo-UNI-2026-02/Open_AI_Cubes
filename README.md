@@ -28,7 +28,11 @@ La carpeta [`minimo/`](minimo/) tiene la misma idea en 6 archivos y unas 1 500 l
 
 ## Informe y presentación
 
-`docs/informe/Informe_OpenAICubes.pdf` y `docs/informe/Presentacion_OpenAICubes.pdf`.
+`docs/informe/Informe_OpenAICubes.pdf`, `docs/informe/Presentacion_OpenAICubes.pdf` y las notas de
+exposición `docs/informe/Notas_exposicion.pdf`.
+
+Guías: [pruebas en vivo](docs/PRUEBAS_EN_VIVO.md) (qué pueden pedir en la exposición y qué tener listo) y
+[servidor en la nube con Azure for Students](docs/NUBE_AZURE.md) (punto opcional del enunciado).
 
 ## Contenido
 
@@ -44,7 +48,7 @@ La carpeta [`minimo/`](minimo/) tiene la misma idea en 6 archivos y unas 1 500 l
 | `python/node.py` | Nodo de cómputo Python |
 | `go/` | Nodo de cómputo Go |
 | `scripts/` | Scripts `.sh` (Linux/macOS) y `.bat` (Windows) |
-| `docs/` | Especificación de la CNN, del protocolo y de la arquitectura |
+| `docs/` | Especificación de la CNN y del protocolo, guía de la nube, guía de pruebas en vivo, informe |
 | `data/` | Dataset (`train.bin`, `test.bin`, `classes.txt`) y pesos (`init_weights.bin`, `model.bin`) |
 
 ## Requisitos
@@ -84,13 +88,34 @@ scripts/cliente.sh           # abre el chat
 |---|---|---|---|
 | Secuencial | `bench_local.sh` | `bench_local.sh` | `bench_local.sh` |
 | Paralelo | `bench_local.sh` | `bench_local.sh` | `bench_local.sh` |
-| Distribuido (nodos con 1 hilo) | `bench_distribuido.sh <ip> distribuido "1 2 4"` | ídem | ídem |
-| Paralelo distribuido (nodos con H hilos) | `bench_distribuido.sh <ip> paralelo_distribuido "1 2 4"` | ídem | ídem |
+| Distribuido (nodos con 1 hilo) | `bench_distribuido.sh <ip> distribuido "1 2 3"` | ídem | ídem |
+| Paralelo distribuido (nodos con H hilos) | `bench_distribuido.sh <ip> paralelo_distribuido "1 2 3"` | ídem | ídem |
 
 Luego `scripts/carga.sh <ip>` para la prueba de saturación y `scripts/graficas.sh` para las gráficas.
 Todos los resultados quedan en `results/*.csv` y las gráficas en `results/*.png`.
+
+Cómo se mide:
+- Cada caso se repite `REPS` veces (3 por defecto) y las gráficas usan la **mediana**. Java hace un lote de
+  calentamiento sin medir para que el JIT no infle la primera corrida.
+- `THREADS="1 2 4 8" scripts/bench_local.sh` barre varios números de hilos y muestra cómo escala el escenario paralelo.
+- El **speedup** se calcula con img/s respecto al secuencial del mismo lenguaje, y la **eficiencia** es speedup / núcleos.
+- En las corridas distribuidas el servidor separa, lote a lote, el **cómputo** (lo que tarda el nodo más lento) de la
+  **comunicación y agregación** (enviar pesos e imágenes, esperar, sumar gradientes): columnas `computo_s` y
+  `comunicacion_s` de `distribuido.csv` y gráfica `costo_comunicacion.png`. La columna `maquinas` cuenta nodos usados
+  y `hosts` cuántas máquinas distintas los aportaron.
+- Gráficas: `matriz_tiempos`, `escalabilidad_tiempo`, `escalabilidad_speedup`, `escalabilidad_eficiencia`,
+  `costo_comunicacion`, `carga_latencia` y `carga_throughput`.
+- En laptops con núcleos rápidos y lentos (Intel 12.ª/13.ª gen.) el secuencial puede caer en un núcleo lento y dar un
+  speedup falso; medir en el clúster o con el plan de energía en "Alto rendimiento".
 La carpeta `results/ejemplo_vm/` trae los CSV de la corrida de prueba en una sola máquina de 4 núcleos, separados para que no se
 mezclen con los del laboratorio. Sus gráficas se regeneran con `java -cp out cubes.tools.Charts results/ejemplo_vm`.
+
+## Empaquetar
+
+```bash
+scripts/empaquetar.sh entrega   # dist/OpenAICubes_entrega.zip: fuentes, scripts, pesos, docs y PDF (para Univirtual)
+scripts/empaquetar.sh kit       # dist/OpenAICubes_kit.zip: ya compilado (Java 8 + nodo Go Linux) para llevar a un clúster
+```
 
 ## Dataset
 

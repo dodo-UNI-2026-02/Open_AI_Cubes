@@ -62,6 +62,10 @@ public final class DistributedTrainer {
         public double accuracy;
         public double testAccuracy = Double.NaN;
         public int nodesUsed;
+        /** Suma, lote a lote, del nodo más lento (cómputo que no se puede ocultar). */
+        public double computeSeconds;
+        /** Resto del tiempo: enviar pesos e imágenes, esperar, sumar gradientes y SGD (costo de paralelizar). */
+        public double commSeconds;
         public String detail;
     }
 
@@ -194,6 +198,7 @@ public final class DistributedTrainer {
                 nodes.size(), used, images, cfg.epochs, cfg.batch));
 
         long t0 = System.nanoTime();
+        long computeNs = 0, commNs = 0;
         double lossSum = 0;
         long correct = 0, count = 0;
         int batches = (images + cfg.batch - 1) / cfg.batch;
@@ -202,6 +207,8 @@ public final class DistributedTrainer {
             long eCorrect = 0, eCount = 0;
             long te = System.nanoTime();
             for (int b = 0; b < batches; b++) {
+                long tb = System.nanoTime();
+                int maxMs = 0;
                 int start = b * cfg.batch;
                 int n = Math.min(cfg.batch, images - start);
                 List<NodeHandle> live = new ArrayList<NodeHandle>();
@@ -262,6 +269,7 @@ public final class DistributedTrainer {
                     double ls = r.f64();
                     int ok = r.i32();
                     int ms = r.i32();
+                    maxMs = Math.max(maxMs, ms);
                     float[] g = r.floats();
                     for (int k = 0; k < g.length; k++) {
                         grad[k] += g[k];
@@ -280,6 +288,11 @@ public final class DistributedTrainer {
                     ns.computeMs += ms;
                 }
                 sgd.step(params, grad, n);
+                // los nodos trabajan a la vez: el lote dura lo que el más lento más la comunicación
+                long batchNs = System.nanoTime() - tb;
+                long slowNs = Math.min(batchNs, maxMs * 1000000L);
+                computeNs += slowNs;
+                commNs += batchNs - slowNs;
                 if (batches >= 10 && (b + 1) % Math.max(1, batches / 10) == 0) {
                     progress.line(String.format(Locale.ROOT, "  epoca %d: lote %d/%d, perdida %.4f", e, b + 1, batches,
                             eLoss / Math.max(1, eCount)));
@@ -297,6 +310,10 @@ public final class DistributedTrainer {
         res.loss = lossSum / count;
         res.accuracy = (double) correct / count;
         res.nodesUsed = nodes.size();
+        res.computeSeconds = computeNs / 1e9;
+        res.commSeconds = commNs / 1e9;
+        progress.line(String.format(Locale.ROOT, "tiempo: %.2f s de computo (nodo mas lento) + %.2f s de comunicacion y agregacion (%.0f %%)",
+                res.computeSeconds, res.commSeconds, 100 * res.commSeconds / Math.max(1e-9, res.computeSeconds + res.commSeconds)));
 
         StringBuilder detail = new StringBuilder();
         for (Map.Entry<NodeHandle, NodeStats> en : stats.entrySet()) {
@@ -412,9 +429,11 @@ public final class DistributedTrainer {
             return;
         }
         Set<String> langs = new LinkedHashSet<String>();
+        Set<String> hosts = new LinkedHashSet<String>();
         int threads = 0;
         for (NodeHandle h : nodes) {
             langs.add(h.lang);
+            hosts.add(h.address + "/" + h.hostname); // misma clave que NodeRegistry.select
             threads = Math.max(threads, h.threads);
         }
         StringBuilder l = new StringBuilder();
@@ -429,11 +448,13 @@ public final class DistributedTrainer {
             PrintWriter w = new PrintWriter(new FileWriter(csv, true));
             try {
                 if (header) {
-                    w.println("escenario,lenguaje,maquinas,hilos,imagenes,epocas,lote,segundos,img_por_s,perdida,acierto_train,acierto_test");
+                    // "maquinas" = nodos usados (se mantiene el nombre por compatibilidad con las gráficas);
+                    // "hosts" = máquinas físicas o VM distintas que aportaron esos nodos
+                    w.println("escenario,lenguaje,maquinas,hilos,imagenes,epocas,lote,segundos,img_por_s,perdida,acierto_train,acierto_test,hosts,computo_s,comunicacion_s");
                 }
-                w.printf(Locale.ROOT, "%s,%s,%d,%d,%d,%d,%d,%.3f,%.2f,%.4f,%.4f,%.4f%n", cfg.label, l, nodes.size(), threads,
+                w.printf(Locale.ROOT, "%s,%s,%d,%d,%d,%d,%d,%.3f,%.2f,%.4f,%.4f,%.4f,%d,%.3f,%.3f%n", cfg.label, l, nodes.size(), threads,
                         images, cfg.epochs, cfg.batch, res.seconds, (double) images * cfg.epochs / res.seconds, res.loss,
-                        res.accuracy, res.testAccuracy);
+                        res.accuracy, res.testAccuracy, hosts.size(), res.computeSeconds, res.commSeconds);
             } finally {
                 w.close();
             }

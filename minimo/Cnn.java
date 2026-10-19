@@ -394,7 +394,7 @@ public class Cnn {
                 }
                 System.out.printf("Época %d: pérdida %.4f, acierto en entrenamiento %.1f %%%n", e, perdida / imagenes, 100.0 * aciertos / imagenes);
             }
-            double seg = (System.nanoTime() - t0) / 1e9, acc = cnn.acierto(w, test, Math.min(1000, nTest));
+            double seg = (System.nanoTime() - t0) / 1e9, acc = cnn.acierto(w, test, nTest);
             System.out.printf("%d imágenes x %d épocas en %.2f s (%.1f img/s), acierto en prueba %.1f %%%n", imagenes, epocas, seg, imagenes * epocas / seg, acc * 100);
             String escenario = cnn.hilos == 1 ? "secuencial" : "paralelo";
             csv("resultados.csv", CABECERA, String.format(Locale.US, "%s,java,1,%d,%d,%d,%.3f,%.2f,%.4f", escenario, cnn.hilos, imagenes, epocas, seg, imagenes * epocas / seg, acc));

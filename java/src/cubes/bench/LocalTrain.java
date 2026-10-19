@@ -42,6 +42,18 @@ public final class LocalTrain {
                 threads, images, epochs, batch, params.classes);
         ChunkExecutor ex = new ChunkExecutor(threads);
         Cnn cnn = new Cnn(ex);
+        // calentamiento: un lote sin medir ni actualizar pesos, para que el JIT compile el código caliente
+        // y la primera medición no salga inflada (Go y Python no lo necesitan)
+        int warm = Math.min(args.getInt("warmup", batch), images);
+        if (warm > 0) {
+            float[][] wx = new float[warm][];
+            int[] wy = new int[warm];
+            for (int i = 0; i < warm; i++) {
+                wx[i] = train.image(i);
+                wy[i] = train.label(i);
+            }
+            cnn.forwardBackward(params, wx, wy, new float[params.data.length]);
+        }
         long t0 = System.nanoTime();
         Cnn.Stats last = null;
         for (int e = 1; e <= epochs; e++) {

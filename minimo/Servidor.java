@@ -291,7 +291,8 @@ public class Servidor {
         }
         envios.shutdown();
         double seg = (System.nanoTime() - t0) / 1e9;
-        double acc = local.acierto(w, Cnn.cargarDataset("test.bin"), 1000);
+        byte[] test = Cnn.cargarDataset("test.bin");
+        double acc = local.acierto(w, test, test.length / (Cnn.IN + 1));   // las 4000 imágenes de prueba
         System.out.printf("%d imágenes x %d épocas en %.2f s (%.1f img/s), acierto en prueba %.1f %%%n", imagenes, epocas, seg, imagenes * epocas / seg, acc * 100);
         Cnn.csv("resultados.csv", Cnn.CABECERA, String.format(Locale.US, "%s,%s,%d,%d,%d,%d,%.3f,%.2f,%.4f",
                 unHilo ? "distribuido" : "paralelo_distribuido", String.join("+", langs), nodosIniciales,
