@@ -32,7 +32,8 @@ La carpeta [`minimo/`](minimo/) tiene la misma idea en 6 archivos y unas 1 500 l
 exposición `docs/informe/Notas_exposicion.pdf`.
 
 Guías: [pruebas en vivo](docs/PRUEBAS_EN_VIVO.md) (qué pueden pedir en la exposición y qué tener listo) y
-[servidor en la nube con Azure for Students](docs/NUBE_AZURE.md) (punto opcional del enunciado).
+servidor en la nube (punto opcional del enunciado) con [Google Cloud](docs/NUBE_GCP.md), la opción elegida; [AWS](docs/NUBE_AWS.md) y
+[Azure](docs/NUBE_AZURE.md) quedan como alternativas.
 
 ## Contenido
 
@@ -70,7 +71,7 @@ scripts/demo_local.sh        # servidor + 3 nodos + prueba cruzada (Windows: scr
 scripts/cliente.sh           # abre el chat
 ```
 
-## Ejecutar en varias máquinas (clúster)
+## Ejecutar en varias máquinas (clúster de laptops)
 
 1. En la máquina servidor: `scripts/servidor.sh`. Abrir los puertos 5000 y 6000 en el firewall.
 2. En cada máquina de cómputo (con la IP del servidor):
@@ -108,13 +109,13 @@ Cómo se mide:
 - En laptops con núcleos rápidos y lentos (Intel 12.ª/13.ª gen.) el secuencial puede caer en un núcleo lento y dar un
   speedup falso; medir en el clúster o con el plan de energía en "Alto rendimiento".
 La carpeta `results/ejemplo_vm/` trae los CSV de la corrida de prueba en una sola máquina de 4 núcleos, separados para que no se
-mezclen con los del laboratorio. Sus gráficas se regeneran con `java -cp out cubes.tools.Charts results/ejemplo_vm`.
+mezclen con los de las laptops del equipo. Sus gráficas se regeneran con `java -cp out cubes.tools.Charts results/ejemplo_vm`.
 
 ## Empaquetar
 
 ```bash
 scripts/empaquetar.sh entrega   # dist/OpenAICubes_entrega.zip: fuentes, scripts, pesos, docs y PDF (para Univirtual)
-scripts/empaquetar.sh kit       # dist/OpenAICubes_kit.zip: ya compilado (Java 8 + nodo Go Linux) para llevar a un clúster
+scripts/empaquetar.sh kit       # dist/OpenAICubes_kit.zip: ya compilado (Java 8 + nodo Go Windows/Linux) para copiar a cada laptop
 ```
 
 ## Dataset

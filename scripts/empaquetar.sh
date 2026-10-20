@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Arma los dos comprimidos del proyecto en dist/ (sin historial de git ni archivos de más).
 # Uso: scripts/empaquetar.sh entrega   -> dist/OpenAICubes_entrega.zip  (para Univirtual)
-#      scripts/empaquetar.sh kit       -> dist/OpenAICubes_kit.zip      (listo para correr en un clúster Linux)
+#      scripts/empaquetar.sh kit       -> dist/OpenAICubes_kit.zip      (listo para correr en las laptops Windows o en Linux)
 #
 # entrega: solo fuentes (.java .go .py), scripts, pesos y datos de prueba, docs y los PDF de
 #          informe, presentación y notas. Es lo que pide el enunciado; nada de .git, out/ ni binarios.
 #          train.bin (61 MB) no va por defecto: está en el Release v1.0. Para incluirlo: CON_TRAIN=1
-# kit:     lo mismo pero ya compilado: clases Java 8 en out/ y nodo Go para Linux x86-64, más
-#          train.bin si existe. Se copia a cada máquina del clúster y no hace falta compilar.
+# kit:     lo mismo pero ya compilado: clases Java 8 en out/ y nodo Go para Windows y Linux x86-64, más
+#          train.bin si existe. Se copia a cada laptop y no hace falta compilar.
 set -e
 cd "$(dirname "$0")/.."
 MODO="${1:-entrega}"
@@ -31,9 +31,11 @@ if [ "$MODO" = "kit" ]; then
   bash scripts/compilar.sh >/dev/null
   cp -r out "$D/out"
   if command -v go >/dev/null 2>&1; then
+    # las laptops del equipo usan Windows (nodo_go.bat); Linux por si se corre en otro clúster o en la nube
+    (cd go && GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o "../$D/go/nodo-go.exe" .)
     (cd go && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o "../$D/go/nodo-go" .)
   else
-    echo "AVISO: sin 'go' no se incluye el nodo Go compilado (en el clúster: scripts/compilar.sh)"
+    echo "AVISO: sin 'go' no se incluye el nodo Go compilado (en cada máquina: scripts/compilar.sh)"
   fi
   [ -f data/train.bin ] && cp data/train.bin "$D/data/"
   SALIDA="dist/${NOMBRE}_kit.zip"

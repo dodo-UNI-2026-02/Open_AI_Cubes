@@ -2,7 +2,9 @@
 
 El enunciado dice: *"Se consultará una pregunta en su clúster u otro"*. En la exposición hay que
 poder levantar el sistema en pocos minutos, en nuestro clúster o en máquinas ajenas, y responder
-pidiendo una prueba concreta. Esta guía junta las pruebas más probables con los comandos
+pidiendo una prueba concreta. **Nuestro clúster son las laptops físicas del equipo**, una por
+integrante (Windows), cada una con el nodo de su lenguaje. El servidor va en una de ellas o en
+Google Cloud. Esta guía junta las pruebas más probables con los comandos
 exactos, lo que se debe ver en pantalla y lo que conviene explicar.
 
 En los comandos, `S` es la IP del servidor y `H` es el número de hilos por nodo.
@@ -11,20 +13,29 @@ En los comandos, `S` es la IP del servidor y `H` es el número de hilos por nodo
 
 ## 1. Antes del día (checklist)
 
-- [ ] **Kit compilado:** `scripts/empaquetar.sh kit` → `dist/OpenAICubes_kit.zip` (72 MB). Trae
-      las clases Java 8 en `out/`, `nodo-go` para Linux, `node.py` y `train.bin`. Llevarlo en un
-      USB **y** en el Drive. En una máquina ajena basta descomprimir; no hace falta compilar ni
-      tener Go:
-      `unzip OpenAICubes_kit.zip && cd OpenAICubes && chmod +x go/nodo-go scripts/*.sh`.
-- [ ] **Clúster del lab 07 probado de punta a punta:** servidor + 3 nodos (Java, Go, Python),
-      chat, entrenamiento, carga y caída de un nodo. Anotar las IP de cada VM y un nombre de host
-      distinto por VM (`sudo hostnamectl set-hostname nodo1`).
-- [ ] **Requisitos de cada máquina:** Java 8 o superior (`java -version`) y Python 3.8 o superior
-      (`python3 --version`). Nada más: el nodo Go viene compilado.
-- [ ] **Firewall:** en Ubuntu, `sudo ufw status`; si está activo,
-      `sudo ufw allow 5000/tcp && sudo ufw allow 6000/tcp` en la máquina del servidor. En
-      VirtualBox, las VM en "Red interna" o "Adaptador puente" deben verse entre sí (`ping`).
-- [ ] **Resultados ya medidos** en el clúster real, con sus gráficas (`results/*.png`) puestas en
+- [ ] **Kit compilado:** `scripts/empaquetar.sh kit` → `dist/OpenAICubes_kit.zip`. Trae las
+      clases Java 8 en `out/`, el nodo Go para Windows (`nodo-go.exe`) y para Linux (`nodo-go`),
+      `node.py` y `train.bin`. Copiarlo a cada laptop y llevarlo en un USB **y** en el Drive.
+      Basta descomprimir; no hace falta compilar ni tener Go. En Linux o macOS:
+      `chmod +x go/nodo-go scripts/*.sh`.
+- [ ] **Las 3 laptops probadas juntas de punta a punta:** servidor + 3 nodos (Java, Go, Python),
+      chat, entrenamiento, carga y caída de un nodo. Anotar el procesador, los núcleos y la RAM
+      de cada laptop para el informe.
+- [ ] **Requisitos de cada laptop:** Java 8 o superior (`java -version`) en todas, y Python 3.8 o
+      superior (`python --version`) en la del nodo Python. Nada más: el nodo Go viene compilado.
+- [ ] **Red:** el WiFi de la universidad suele aislar a los equipos entre sí (*client
+      isolation*), así que una laptop no ve a otra. Llevar un **hotspot del celular** o un router
+      propio y conectar ahí las 3 laptops, o usar el servidor en la nube (Google Cloud), al que todas salen por
+      internet.
+- [ ] **Firewall de Windows en la laptop servidor:** la primera vez que arranca, Windows pregunta
+      si permite a Java en redes privadas o públicas: aceptar **las dos**. Si se rechazó, ir a
+      *Firewall de Windows → Permitir una aplicación* y habilitar `java.exe`, o (como
+      administrador)
+      `netsh advfirewall firewall add rule name="OpenAICubes" dir=in action=allow protocol=TCP localport=5000,6000`.
+      Las laptops nodo no necesitan nada, porque solo hacen conexiones salientes.
+- [ ] **Energía:** laptops **enchufadas** y con el plan "Alto rendimiento". Con batería, Windows
+      baja la frecuencia y las mediciones salen peores e irregulares.
+- [ ] **Resultados ya medidos** con las 3 laptops, con sus gráficas (`results/*.png`) puestas en
       el informe y la presentación. En vivo se repite solo una parte, porque el resto ya está
       medido.
 - [ ] **Fotos para el chat:** 2 o 3 fotos reales por clase (avión, auto, gato, barco), una foto
@@ -33,23 +44,27 @@ En los comandos, `S` es la IP del servidor y `H` es el número de hilos por nodo
       `Concurrente/PARCIAL/AiCube_Remotion_Para_Claude/foto_gato/gato_1264.jpg`.
 - [ ] **Plan B sin red:** una laptop con todo local (`scripts/demo_local.sh 2`, o
       `scripts\demo_local.bat 2` en Windows).
-- [ ] **Plan nube (opcional):** VM de Azure lista y apagada; se enciende 10 minutos antes. Ver
-      [NUBE_AZURE.md](NUBE_AZURE.md) y probar antes que la red de la UNI deja salir por 5000/6000.
+- [ ] **Plan nube (opcional):** servidor de Google Cloud listo y detenido; se enciende 10 minutos antes. Ver
+      [NUBE_GCP.md](NUBE_GCP.md) y probar antes que la red de la UNI deja salir por 5000/6000.
 - [ ] Repasar la tabla de conceptos (sección 4): **todos** los integrantes deben saber dónde está
       cada cosa en el código.
 
 ## 2. Arranque rápido (5 minutos)
 
-| Dónde | Comando |
+| Dónde | Comando (Windows; en Linux o macOS, lo mismo con `.sh`) |
 |---|---|
-| Máquina servidor | `scripts/servidor.sh` (consola: `estado`, `verbose`, `salir`) |
-| VM 1 | `scripts/nodo_java.sh S H` |
-| VM 2 | `scripts/nodo_go.sh S H` |
-| VM 3 | `scripts/nodo_python.sh S H` |
-| Cualquiera | `scripts/cliente.sh S` (chat) |
+| Laptop servidor | `scripts\servidor.bat` (consola: `estado`, `verbose`, `salir`); en la nube, `scripts/servidor.sh` |
+| Laptop 1 | `scripts\nodo_java.bat S H` |
+| Laptop 2 | `scripts\nodo_go.bat S H` |
+| Laptop 3 | `scripts\nodo_python.bat S H` |
+| Cualquiera | `scripts\cliente.bat S` (chat) |
 | Cualquiera | `java -cp out cubes.client.AdminClient --host S estado` |
 
-Al terminar, `estado` debe listar los 3 nodos con su lenguaje, host, hilos y velocidad.
+- La IP `S` de la laptop servidor se ve con `ipconfig` ("Dirección IPv4" del WiFi o hotspot).
+- La laptop servidor también puede correr su propio nodo. Para el escenario distribuido, eso sí,
+  cada nodo que se mide debe ir en una laptop distinta.
+- Al terminar, `estado` debe listar los 3 nodos con su lenguaje, el nombre de cada laptop, hilos
+  y velocidad.
 
 ## 3. Pruebas probables
 
@@ -83,9 +98,9 @@ java -cp out cubes.client.AdminClient --host S entrenar --images 1024 --langs al
 ### P4. "Muestren los 4 escenarios" (secuencial, paralelo, distribuido, paralelo distribuido)
 ```bash
 REPS=1 THREADS="1 2 4" scripts/bench_local.sh 512        # secuencial y paralelo (1 máquina)
-# nodos con 1 hilo en cada VM:
+# nodos con 1 hilo en cada laptop:
 REPS=1 scripts/bench_distribuido.sh S distribuido "1 2 3" 512
-# nodos con H hilos en cada VM:
+# nodos con H hilos en cada laptop:
 REPS=1 scripts/bench_distribuido.sh S paralelo_distribuido "1 2 3" 512
 scripts/graficas.sh
 ```
@@ -99,7 +114,7 @@ scripts/graficas.sh
   o `kill -9`. El servidor imprime *"nodo X falló; se reasignan N imágenes al nodo Y"* y el
   entrenamiento termina igual.
 - **Durante el chat o la carga:** apagar un nodo; ese lote se reasigna. Si se desconecta el cable
-  o se congela la VM, el **heartbeat** lo marca caído a los 10 s (`NodeRegistry.TIMEOUT_MS`).
+  o se apaga el WiFi de una laptop, el **heartbeat** lo marca caído a los 10 s (`NodeRegistry.TIMEOUT_MS`).
 - **Si se caen todos:** el servidor responde el chat él solo; `estado` lo cuenta como "en
   servidor (sin nodos)".
 - **Qué explicar:** detección por excepción del socket (inmediata) y por heartbeat (cuelgues).
@@ -139,7 +154,8 @@ Lo más típico es cambiar los hilos, el lote, el puerto o agregar un mensaje. S
 - **Recompilar:** `scripts/compilar.sh` (unos 5 s).
 
 ### P10. "Corran el servidor en la nube" (opcional)
-- Servidor en Azure, nodos en el lab y chat desde una laptop. Ver [NUBE_AZURE.md](NUBE_AZURE.md).
+- Servidor en Google Cloud, nodos en las 3 laptops (pueden estar en casas distintas) y el chat desde
+  cualquier PC. Ver [NUBE_GCP.md](NUBE_GCP.md).
 - **Qué explicar:** por internet aparece la latencia de red. Se compara `carga_latencia.png` LAN
   vs nube.
 
@@ -176,8 +192,12 @@ Lo más típico es cambiar los hilos, el lote, el puerto o agregar un mensaje. S
 - **Ojo con laptops con núcleos P y E** (como un Intel de 12.ª/13.ª generación). Con 1 hilo, el
   sistema operativo puede mandar el proceso a un núcleo lento (E). Medido en un i5-13420H: Java
   con 1 hilo tarda 7,4 s en un núcleo P y 15 s en uno E. Eso da un speedup falso de casi 3× con 2
-  hilos. Las mediciones para el informe se hacen en el clúster (VM con núcleos iguales) o con el
-  plan de energía en "Alto rendimiento".
+  hilos. Con laptops así, el secuencial se mide fijando el proceso a un núcleo P, con el plan
+  "Alto rendimiento" y enchufada, y se aclara en el informe:
+  `start /affinity 1 java -cp out cubes.bench.LocalTrain ... --threads 1`.
+- **Laptops distintas:** cada una aporta a otra velocidad. El reparto es proporcional a la
+  velocidad medida, pero el lote espera a la más lenta. Por eso el speedup distribuido se compara
+  contra el secuencial de la **misma** laptop y lenguaje.
 - **Repeticiones:** los bench repiten cada caso (`REPS=3`) y las gráficas usan la **mediana**, que
   resiste mejor a una corrida rara (JIT, otra carga en la máquina).
 
@@ -186,11 +206,12 @@ Lo más típico es cambiar los hilos, el lote, el puerto o agregar un mensaje. S
 | Síntoma | Causa y solución |
 |---|---|
 | `Address already in use` | Quedó un servidor viejo: `pkill -f CentralServer` (Linux), o cerrar la ventana |
-| El nodo no conecta | IP equivocada, firewall (`ufw`) o VM en otra red. Probar `nc -vz S 6000` |
-| `python3: command not found` | `sudo apt install python3`. En Windows usar `python` |
+| El nodo no conecta | IP equivocada, firewall de Windows en la laptop servidor, o el WiFi aísla a los equipos. Probar `Test-NetConnection S -Port 6000`; si falla, usar el hotspot del celular |
+| `python` no se reconoce en Windows | Instalar Python desde python.org marcando "Add to PATH" (el de la Microsoft Store es un acceso directo vacío) |
 | `Permission denied` en `nodo-go` | `chmod +x go/nodo-go scripts/*.sh` (el zip no guarda permisos) |
 | `UnsupportedClassVersionError` | Se compiló sin `--release 8`; usar las clases del kit o `scripts/compilar.sh` con JDK 9+ |
-| Dos VM cuentan como una máquina | Mismo hostname y misma IP de salida (clones): `sudo hostnamectl set-hostname nodoN` |
+| `hosts` dice 1 con 3 nodos | Los 3 nodos corren en la misma laptop; para el distribuido van en laptops distintas |
+| Mediciones irregulares | La laptop está con batería o en ahorro de energía: enchufarla y usar "Alto rendimiento" |
 | Python recibe 0 imágenes | Es el reparto proporcional con lotes chicos; con `--batch 256` le toca algo |
 | El entrenamiento se nota lento por internet | Es lo esperado: entrenar en la LAN y dejar la nube para chat y carga |
 
@@ -201,4 +222,4 @@ Lo más típico es cambiar los hilos, el lote, el puerto o agregar un mensaje. S
 3. Chat: foto real, foto trampa y carpeta (2 min).
 4. Entrenamiento mixto corto y caída de un nodo con reasignación (2 min).
 5. Prueba de carga hasta 400–800 clientes, explicando la saturación (2 min).
-6. Gráficas del clúster real: speedup, eficiencia, costo de comunicación y conclusiones (2 min).
+6. Gráficas de las 3 laptops: speedup, eficiencia, costo de comunicación y conclusiones (2 min).

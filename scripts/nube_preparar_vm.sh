@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Prepara una VM Ubuntu en la nube (Azure for Students u otra) para correr el SERVIDOR CENTRAL.
+# Prepara una VM Ubuntu en la nube (Google Cloud, AWS, Azure u otra) para correr el SERVIDOR CENTRAL.
 # Se ejecuta DENTRO de la VM, una sola vez:
 #   curl -fsSL https://raw.githubusercontent.com/dodo-UNI-2026-02/Open_AI_Cubes/main/scripts/nube_preparar_vm.sh | bash
 # o, si ya se clonó el repo:  bash scripts/nube_preparar_vm.sh
-# Guía completa: docs/NUBE_AZURE.md
+# Guías: docs/NUBE_GCP.md (elegida), docs/NUBE_AWS.md y docs/NUBE_AZURE.md
 set -e
 REPO=https://github.com/dodo-UNI-2026-02/Open_AI_Cubes.git
 ZIP=https://github.com/dodo-UNI-2026-02/Open_AI_Cubes/releases/download/v1.0/datos_train.zip
@@ -44,9 +44,10 @@ Listo. Para arrancar el servidor y que siga vivo al cerrar SSH:
   tmux new -s oac            # (para volver luego: tmux attach -t oac; para salir sin cerrarlo: Ctrl+B y luego D)
   JAVA_MEM=-Xmx600m scripts/servidor.sh
 
-Desde el laboratorio o desde casa (puertos 5000 y 6000 abiertos en el NSG de Azure):
-  scripts/nodo_java.sh   $IP 2
-  scripts/nodo_go.sh     $IP 2
-  scripts/nodo_python.sh $IP 2
-  scripts/cliente.sh     $IP
+Desde cada laptop, en Windows (puertos 5000 y 6000 abiertos en el firewall de la nube):
+  scripts\\nodo_java.bat   $IP 4
+  scripts\\nodo_go.bat     $IP 4
+  scripts\\nodo_python.bat $IP 4
+  scripts\\cliente.bat     $IP
+(en Linux o macOS, los mismos scripts con .sh)
 EOF
