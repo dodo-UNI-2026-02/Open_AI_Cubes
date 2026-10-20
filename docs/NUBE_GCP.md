@@ -1,8 +1,9 @@
 # Servidor en la nube con Google Cloud (Compute Engine)
 
 El enunciado pide como **opcional** "desarrollar el servidor en internet o en la nube". Esta es la
-opción elegida por el equipo: **Google Cloud**. Las guías de [AWS](NUBE_AWS.md) y
-[Azure](NUBE_AZURE.md) quedan como alternativas.
+opción elegida por el equipo: **Google Cloud**. Azure for Students no reconoció la cuenta `uni.pe`
+y la cuenta de AWS quedó bloqueada; en cualquier otra nube los pasos son equivalentes (crear una
+VM Ubuntu, abrir TCP 5000 y 6000 y correr `scripts/nube_preparar_vm.sh`).
 
 **Solo el servidor central va a la nube**, en una VM de Compute Engine. Los **nodos son nuestras
 laptops físicas**, una por integrante y cada una con su lenguaje. Las laptops inician la conexión

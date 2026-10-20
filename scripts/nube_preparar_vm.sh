@@ -3,7 +3,7 @@
 # Se ejecuta DENTRO de la VM, una sola vez:
 #   curl -fsSL https://raw.githubusercontent.com/dodo-UNI-2026-02/Open_AI_Cubes/main/scripts/nube_preparar_vm.sh | bash
 # o, si ya se clonó el repo:  bash scripts/nube_preparar_vm.sh
-# Guías: docs/NUBE_GCP.md (elegida), docs/NUBE_AWS.md y docs/NUBE_AZURE.md
+# Guía: docs/NUBE_GCP.md
 set -e
 REPO=https://github.com/dodo-UNI-2026-02/Open_AI_Cubes.git
 ZIP=https://github.com/dodo-UNI-2026-02/Open_AI_Cubes/releases/download/v1.0/datos_train.zip

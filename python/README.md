@@ -2,7 +2,8 @@
 
 Nodo de cómputo de la CNN en Python, **solo con la biblioteca estándar** (sin numpy).
 Funciona con Python 3.8 o superior; con 3.12+ es más rápido porque usa `math.sumprod`.
-Todo está en `node.py`. Los comandos se ejecutan desde la raíz del repositorio.
+Todo está en `node.py`. Los comandos se ejecutan desde la raíz del repositorio. En Windows el
+comando es `python` en vez de `python3` (o se usa `scripts\nodo_python.bat`).
 
 ## Modos
 

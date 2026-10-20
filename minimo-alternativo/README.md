@@ -1,8 +1,13 @@
-# Open AI Cubes · versión mínima
+# Open AI Cubes · versión alternativa (plan B)
+
+> **Plan B del equipo.** La versión que se presenta es la de la raíz del repositorio. Esta carpeta
+> es una implementación alternativa y mucho más corta, que se conserva por si hiciera falta
+> mostrar o correr el sistema con menos piezas. No es compatible con los nodos de la versión
+> principal: cada servidor trabaja con sus propios nodos.
 
 **Curso:** Programación Concurrente y Distribuida (CC4P1) · UNI 2026-2 · Parcial
 
-La misma idea que la versión completa, en 6 archivos (más `graficas.py`, que no es parte del sistema). Hay 1 servidor Java y nodos de cómputo en Java, Go y Python, conectados por sockets TCP con un protocolo binario propio y sin librerías externas. La CNN, la arquitectura y el formato de los pesos son los mismos, así que usa `../data/model.bin` (82,3 % de acierto) sin cambios.
+La misma idea que la versión principal, en 6 archivos (más `graficas.py`, que no es parte del sistema). Hay 1 servidor Java y nodos de cómputo en Java, Go y Python, conectados por sockets TCP con un protocolo binario propio y sin librerías externas. La CNN, la arquitectura y el formato de los pesos son los mismos, así que usa `../data/model.bin` (82,3 % de acierto) sin cambios.
 
 | Archivo | Líneas | Qué hace |
 |---|---|---|
@@ -78,13 +83,13 @@ Una prueba de carga con 10, 50, 100, 200 y 400 clientes (20 consultas cada uno) 
 
 En `capturas/` están las capturas de una sesión real en una PC: el servidor, los 3 nodos, el chat y la prueba de carga (`vista_conjunto.png` las junta), más las gráficas y los CSV con que se hicieron. Las terminales se dibujaron a partir de la salida real de cada programa.
 
-## Ejecutar en el clúster (máquinas virtuales Ubuntu del lab 07)
+## Ejecutar en varias máquinas
 
 Los nodos no necesitan ningún archivo de datos: el servidor les envía los pesos y las imágenes por la red.
 
 | Máquina | Qué corre | Qué copiar |
 |---|---|---|
-| Servidor (ej. dodo02) | `java -cp out Servidor` (y si quieres, también un nodo y la prueba de carga) | `out/` y la carpeta `data/` al lado de `minimo/` |
+| Servidor | `java -cp out Servidor` (y si quieres, también un nodo y la prueba de carga) | `out/` y la carpeta `data/` al lado de `minimo-alternativo/` |
 | Nodo 1 | `java -cp out Nodo <ip_servidor> <hilos>` | `out/` |
 | Nodo 2 | `./nodo-go <ip_servidor> <hilos>` | `nodo-go` (binario Linux) |
 | Nodo 3 | `python3 nodo.py <ip_servidor> <hilos>` | `nodo.py` |
@@ -97,4 +102,4 @@ javac --release 8 -encoding UTF-8 -d out *.java
 GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o nodo-go nodo.go
 ```
 
-Con `--release 8` las clases corren en el Java 8 de las máquinas virtuales. El binario `nodo-go` no necesita Go instalado. Ubuntu 22.04 ya trae Python 3.10. Si `ufw` está activo, abre los puertos 5000 y 6000 en el servidor. Si los datos están en otra carpeta, se indica con `-Ddata=/ruta/a/data/`.
+Con `--release 8` las clases corren en cualquier Java 8 o superior. El binario `nodo-go` no necesita Go instalado. Ubuntu 22.04 ya trae Python 3.10. Si `ufw` está activo, abre los puertos 5000 y 6000 en el servidor. Si los datos están en otra carpeta, se indica con `-Ddata=/ruta/a/data/`.
