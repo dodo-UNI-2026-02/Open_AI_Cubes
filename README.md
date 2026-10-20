@@ -35,7 +35,8 @@ Guías: [pruebas en vivo](docs/PRUEBAS_EN_VIVO.md) (qué pueden pedir en la expo
 servidor en la nube (punto opcional del enunciado) con [Google Cloud](docs/NUBE_GCP.md), la opción elegida; [AWS](docs/NUBE_AWS.md) y
 [Azure](docs/NUBE_AZURE.md) quedan como alternativas.
 El servidor del equipo corre en Google Cloud (IP 34.176.215.27); los comandos del día a día, incluido
-`tmux attach -t oac` para volver a su consola, están al inicio de [NUBE_GCP.md](docs/NUBE_GCP.md).
+`tmux attach -t oac` para volver a su consola y `Ctrl+B` y luego `D` para salir de ella dejando el servidor
+trabajando, están al inicio de [NUBE_GCP.md](docs/NUBE_GCP.md).
 
 ## Contenido
 

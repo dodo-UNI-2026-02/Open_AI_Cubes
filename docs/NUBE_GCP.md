@@ -34,7 +34,7 @@ Servidor del equipo: VM `oac-servidor` en `southamerica-west1-a`, IP fija **34.1
 | Encender | Consola → Instancias de VM | ⋮ → *Iniciar/Reanudar* |
 | Entrar | Consola → Instancias de VM | Botón **SSH** (si entra con otro usuario: `sudo -iu dodo`) |
 | Arrancar el servidor | SSH | `cd ~/Open_AI_Cubes && tmux new -s oac` y luego `JAVA_MEM=-Xmx600m scripts/servidor.sh` |
-| Salir dejándolo vivo | SSH, dentro de tmux | `Ctrl+B` y luego `D` |
+| **Salir dejando el servidor trabajando** | SSH, dentro de tmux | **`Ctrl+B`**, soltar, y luego **`D`** (*detach*). Aparece `[detached (from session oac)]`; ya se puede cerrar la ventana o apagar la PC |
 | **Volver a la consola del servidor** | SSH | **`tmux attach -t oac`** (ahí se escribe `estado`, `verbose` o `salir`) |
 | ¿Ya está corriendo? | SSH | `tmux ls` (si aparece `oac`, no arrancarlo otra vez: daría `Address already in use`) |
 | Actualizar el código | SSH, con el servidor detenido | `git pull && bash scripts/compilar.sh` |
@@ -43,6 +43,10 @@ Servidor del equipo: VM `oac-servidor` en `southamerica-west1-a`, IP fija **34.1
 | Chat | Laptop | `scripts\cliente.bat 34.176.215.27` |
 | Estado | Laptop | `java -cp out cubes.client.AdminClient --host 34.176.215.27 estado` |
 | Apagar | Consola → Instancias de VM | ⋮ → **Detener** (al terminar cada sesión) |
+
+> **tmux en dos líneas:** `Ctrl+B` y luego `D` = salir sin apagar el servidor (sigue trabajando
+> en la nube). `tmux attach -t oac` = volver a ver su consola. **No** usar `Ctrl+C` ni `salir`
+> si se quiere que siga funcionando: eso sí lo apaga.
 
 Probado el 20 de octubre de 2026: servidor en Santiago, nodo Java en una laptop en Lima y el chat
 identificando una foto de gato con 100 % de confianza. La primera consulta tardó ~3 s porque el
