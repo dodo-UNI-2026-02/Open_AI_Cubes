@@ -44,6 +44,7 @@ Servidor del equipo: VM `oac-servidor` en `southamerica-west1-a`, IP fija **34.1
 | Chat | Laptop | `scripts\cliente.bat 34.176.215.27` |
 | Estado | Laptop | `java -cp out cubes.client.AdminClient --host 34.176.215.27 estado` |
 | Apagar | Consola → Instancias de VM | ⋮ → **Detener** (al terminar cada sesión) |
+| **Día de la presentación** | Red de VPC → Firewall → `permitir-open-ai-cubes` → Editar | Agregar `0.0.0.0/0` a los rangos de origen **antes** de exponer y **quitarlo al terminar** (ver README, "Día de la presentación") |
 
 > **tmux en dos líneas:** `Ctrl+B` y luego `D` = salir sin apagar el servidor (sigue trabajando
 > en la nube). `tmux attach -t oac` = volver a ver su consola. **No** usar `Ctrl+C` ni `salir`

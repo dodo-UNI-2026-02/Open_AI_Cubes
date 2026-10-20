@@ -99,6 +99,23 @@ scripts\cliente.bat           # abre el chat
 4. **Consola admin:** `java -cp out cubes.client.AdminClient --host S estado` (o `crosscheck`, o
    `entrenar ...`).
 
+### Día de la presentación: abrir el firewall y cerrarlo después
+
+Normalmente la regla de firewall `permitir-open-ai-cubes` de Google Cloud solo deja entrar a las
+IP públicas del equipo. En la presentación, cualquier compañero o el profesor puede querer
+conectarse desde la red de la UNI, así que **solo durante la exposición** se abre a todos:
+
+1. **Antes de empezar:** consola de Google Cloud → ☰ → **Red de VPC → Firewall** →
+   `permitir-open-ai-cubes` → **Editar**. En *Rangos de IPv4 de origen*, agregar `0.0.0.0/0` (deja
+   las IP del equipo como están) → **Guardar**.
+2. Encender la VM y arrancar el servidor (ver [NUBE_GCP.md](docs/NUBE_GCP.md)). Probar desde el
+   aula: `Test-NetConnection 34.176.215.27 -Port 5000`.
+3. **Al terminar la exposición:** misma regla → **Editar** → quitar `0.0.0.0/0` → **Guardar**.
+   Después, detener la VM.
+
+El protocolo no está cifrado y el login del chat es de demostración: por eso la regla no debe
+quedar abierta a todo internet más tiempo del necesario.
+
 ## Evaluación (matriz de 12 casos)
 
 | Escenario | Caso 1: Java | Caso 2: Python | Caso 3: Go / mixto |
