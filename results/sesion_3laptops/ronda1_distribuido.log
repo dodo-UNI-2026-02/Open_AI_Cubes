@@ -1,0 +1,183 @@
+== [rep 1/2] distribuido | nodos=java | maquinas=1
+Entrenamiento distribuido: 1 nodos [java@DESKTOP-FMBHKTRx1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 36.51 s, 14.0 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 6.21 s de computo (nodo mas lento) + 30.29 s de comunicacion y agregacion (83 %)
+acierto en prueba: 44.30%
+TOTAL 36.506 s | nodos 1 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 10 [java] DESKTOP-FMBHKTR hilos=1: 512 imagenes, 6.21 s de computo
+== [rep 1/2] distribuido | nodos=python | maquinas=1
+Entrenamiento distribuido: 1 nodos [python@DESKTOP-FMBHKTRx1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 118.31 s, 4.3 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 66.15 s de computo (nodo mas lento) + 52.15 s de comunicacion y agregacion (44 %)
+acierto en prueba: 44.30%
+TOTAL 118.306 s | nodos 1 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 12 [python] DESKTOP-FMBHKTR hilos=1: 512 imagenes, 66.15 s de computo
+== [rep 1/2] distribuido | nodos=go | maquinas=1
+Entrenamiento distribuido: 1 nodos [go@DESKTOP-FMBHKTRx1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 55.31 s, 9.3 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 6.03 s de computo (nodo mas lento) + 49.27 s de comunicacion y agregacion (89 %)
+acierto en prueba: 44.30%
+TOTAL 55.306 s | nodos 1 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 11 [go] DESKTOP-FMBHKTR hilos=1: 512 imagenes, 6.03 s de computo
+== [rep 1/2] distribuido | nodos=java | maquinas=2
+Entrenamiento distribuido: 2 nodos [java@DESKTOP-FMBHKTRx1, java@Jingax1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 44.47 s, 11.5 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 2.68 s de computo (nodo mas lento) + 41.79 s de comunicacion y agregacion (94 %)
+acierto en prueba: 44.30%
+TOTAL 44.467 s | nodos 2 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 10 [java] DESKTOP-FMBHKTR hilos=1: 208 imagenes, 2.26 s de computo
+nodo 13 [java] Jinga hilos=1: 304 imagenes, 2.68 s de computo
+== [rep 1/2] distribuido | nodos=python | maquinas=2
+Entrenamiento distribuido: 2 nodos [python@DESKTOP-FMBHKTRx1, python@Jingax1], 512 imagenes, 1 epocas, lote 64
+  nodo 12 fallo (timeout de heartbeat); se reasignan 27 imagenes al nodo 15
+epoca 1: 77.69 s, 6.6 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 34.34 s de computo (nodo mas lento) + 43.35 s de comunicacion y agregacion (56 %)
+acierto en prueba: 44.30%
+TOTAL 77.688 s | nodos 2 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 12 [python] DESKTOP-FMBHKTR hilos=1: 97 imagenes, 10.57 s de computo
+nodo 15 [python] Jinga hilos=1: 415 imagenes, 36.97 s de computo
+== [rep 1/2] distribuido | nodos=go | maquinas=2
+Entrenamiento distribuido: 2 nodos [go@DESKTOP-FMBHKTRx1, go@Jingax1], 512 imagenes, 1 epocas, lote 64
+  nodo 11 fallo (timeout de heartbeat); se reasignan 24 imagenes al nodo 14
+epoca 1: 22.00 s, 23.3 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 3.93 s de computo (nodo mas lento) + 18.07 s de comunicacion y agregacion (82 %)
+acierto en prueba: 44.30%
+TOTAL 22.005 s | nodos 2 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 11 [go] DESKTOP-FMBHKTR hilos=1: 0 imagenes, 0.00 s de computo
+nodo 14 [go] Jinga hilos=1: 512 imagenes, 4.09 s de computo
+== [rep 1/2] distribuido | nodos=all | maquinas=2
+Entrenamiento distribuido: 2 nodos [java@DESKTOP-FMBHKTRx1, go@Jingax1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 52.13 s, 9.8 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 2.91 s de computo (nodo mas lento) + 49.22 s de comunicacion y agregacion (94 %)
+acierto en prueba: 44.30%
+TOTAL 52.130 s | nodos 2 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 10 [java] DESKTOP-FMBHKTR hilos=1: 227 imagenes, 2.67 s de computo
+nodo 14 [go] Jinga hilos=1: 285 imagenes, 2.61 s de computo
+== [rep 1/2] distribuido | nodos=java | maquinas=3
+Entrenamiento distribuido: 3 nodos [java@DESKTOP-FMBHKTRx1, java@Jingax1, java@DESKTOP-SCUO763x1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 28.83 s, 17.8 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 1.87 s de computo (nodo mas lento) + 26.96 s de comunicacion y agregacion (94 %)
+acierto en prueba: 44.30%
+TOTAL 28.827 s | nodos 3 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 10 [java] DESKTOP-FMBHKTR hilos=1: 147 imagenes, 1.44 s de computo
+nodo 13 [java] Jinga hilos=1: 182 imagenes, 1.54 s de computo
+nodo 16 [java] DESKTOP-SCUO763 hilos=1: 183 imagenes, 1.84 s de computo
+== [rep 1/2] distribuido | nodos=python | maquinas=3
+Entrenamiento distribuido: 3 nodos [python@Jingax1, python@DESKTOP-SCUO763x1, python@DESKTOP-FMBHKTRx1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 52.29 s, 9.8 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 19.10 s de computo (nodo mas lento) + 33.20 s de comunicacion y agregacion (63 %)
+acierto en prueba: 44.30%
+TOTAL 52.293 s | nodos 3 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 15 [python] Jinga hilos=1: 165 imagenes, 15.76 s de computo
+nodo 18 [python] DESKTOP-SCUO763 hilos=1: 178 imagenes, 17.63 s de computo
+nodo 19 [python] DESKTOP-FMBHKTR hilos=1: 169 imagenes, 19.00 s de computo
+== [rep 1/2] distribuido | nodos=go | maquinas=3
+Entrenamiento distribuido: 3 nodos [go@Jingax1, go@DESKTOP-SCUO763x1, go@DESKTOP-FMBHKTRx1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 42.78 s, 12.0 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 1.85 s de computo (nodo mas lento) + 40.94 s de comunicacion y agregacion (96 %)
+acierto en prueba: 44.30%
+TOTAL 42.785 s | nodos 3 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 14 [go] Jinga hilos=1: 162 imagenes, 1.52 s de computo
+nodo 17 [go] DESKTOP-SCUO763 hilos=1: 183 imagenes, 1.68 s de computo
+nodo 20 [go] DESKTOP-FMBHKTR hilos=1: 167 imagenes, 1.76 s de computo
+== [rep 1/2] distribuido | nodos=all | maquinas=3
+Entrenamiento distribuido: 3 nodos [java@DESKTOP-FMBHKTRx1, go@Jingax1, go@DESKTOP-SCUO763x1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 13.66 s, 37.5 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 1.71 s de computo (nodo mas lento) + 11.95 s de comunicacion y agregacion (87 %)
+acierto en prueba: 44.30%
+TOTAL 13.665 s | nodos 3 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 10 [java] DESKTOP-FMBHKTR hilos=1: 166 imagenes, 1.50 s de computo
+nodo 14 [go] Jinga hilos=1: 176 imagenes, 1.59 s de computo
+nodo 17 [go] DESKTOP-SCUO763 hilos=1: 170 imagenes, 1.63 s de computo
+== [rep 2/2] distribuido | nodos=java | maquinas=1
+Entrenamiento distribuido: 1 nodos [java@DESKTOP-FMBHKTRx1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 19.13 s, 26.8 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 4.37 s de computo (nodo mas lento) + 14.76 s de comunicacion y agregacion (77 %)
+acierto en prueba: 44.30%
+TOTAL 19.133 s | nodos 1 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 10 [java] DESKTOP-FMBHKTR hilos=1: 512 imagenes, 4.37 s de computo
+== [rep 2/2] distribuido | nodos=python | maquinas=1
+Entrenamiento distribuido: 1 nodos [python@Jingax1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 61.14 s, 8.4 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 48.30 s de computo (nodo mas lento) + 12.84 s de comunicacion y agregacion (21 %)
+acierto en prueba: 44.30%
+TOTAL 61.140 s | nodos 1 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 15 [python] Jinga hilos=1: 512 imagenes, 48.30 s de computo
+== [rep 2/2] distribuido | nodos=go | maquinas=1
+Entrenamiento distribuido: 1 nodos [go@Jingax1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 10.32 s, 49.6 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 4.37 s de computo (nodo mas lento) + 5.95 s de comunicacion y agregacion (58 %)
+acierto en prueba: 44.30%
+TOTAL 10.321 s | nodos 1 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 14 [go] Jinga hilos=1: 512 imagenes, 4.37 s de computo
+== [rep 2/2] distribuido | nodos=java | maquinas=2
+Entrenamiento distribuido: 2 nodos [java@DESKTOP-FMBHKTRx1, java@Jingax1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 21.68 s, 23.6 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 2.34 s de computo (nodo mas lento) + 19.34 s de comunicacion y agregacion (89 %)
+acierto en prueba: 44.30%
+TOTAL 21.676 s | nodos 2 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 10 [java] DESKTOP-FMBHKTR hilos=1: 252 imagenes, 2.28 s de computo
+nodo 13 [java] Jinga hilos=1: 260 imagenes, 2.22 s de computo
+== [rep 2/2] distribuido | nodos=python | maquinas=2
+Entrenamiento distribuido: 2 nodos [python@Jingax1, python@DESKTOP-SCUO763x1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 31.34 s, 16.3 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 25.73 s de computo (nodo mas lento) + 5.61 s de comunicacion y agregacion (18 %)
+acierto en prueba: 44.30%
+TOTAL 31.338 s | nodos 2 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 15 [python] Jinga hilos=1: 255 imagenes, 24.65 s de computo
+nodo 18 [python] DESKTOP-SCUO763 hilos=1: 257 imagenes, 24.96 s de computo
+== [rep 2/2] distribuido | nodos=go | maquinas=2
+Entrenamiento distribuido: 2 nodos [go@Jingax1, go@DESKTOP-SCUO763x1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 7.90 s, 64.8 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 2.82 s de computo (nodo mas lento) + 5.08 s de comunicacion y agregacion (64 %)
+acierto en prueba: 44.30%
+TOTAL 7.898 s | nodos 2 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 14 [go] Jinga hilos=1: 278 imagenes, 2.42 s de computo
+nodo 17 [go] DESKTOP-SCUO763 hilos=1: 234 imagenes, 2.77 s de computo
+== [rep 2/2] distribuido | nodos=all | maquinas=2
+Entrenamiento distribuido: 2 nodos [java@DESKTOP-FMBHKTRx1, go@Jingax1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 37.02 s, 13.8 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 2.71 s de computo (nodo mas lento) + 34.31 s de comunicacion y agregacion (93 %)
+acierto en prueba: 44.30%
+TOTAL 37.019 s | nodos 2 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 10 [java] DESKTOP-FMBHKTR hilos=1: 227 imagenes, 2.64 s de computo
+nodo 14 [go] Jinga hilos=1: 285 imagenes, 2.33 s de computo
+== [rep 2/2] distribuido | nodos=java | maquinas=3
+Entrenamiento distribuido: 3 nodos [java@DESKTOP-FMBHKTRx1, java@Jingax1, java@DESKTOP-SCUO763x1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 27.08 s, 18.9 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 1.80 s de computo (nodo mas lento) + 25.28 s de comunicacion y agregacion (93 %)
+acierto en prueba: 44.30%
+TOTAL 27.081 s | nodos 3 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 10 [java] DESKTOP-FMBHKTR hilos=1: 133 imagenes, 1.66 s de computo
+nodo 13 [java] Jinga hilos=1: 187 imagenes, 1.62 s de computo
+nodo 16 [java] DESKTOP-SCUO763 hilos=1: 192 imagenes, 1.47 s de computo
+== [rep 2/2] distribuido | nodos=python | maquinas=3
+Entrenamiento distribuido: 3 nodos [python@Jingax1, python@DESKTOP-SCUO763x1, python@DESKTOP-FMBHKTRx1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 60.39 s, 8.5 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 19.17 s de computo (nodo mas lento) + 41.23 s de comunicacion y agregacion (68 %)
+acierto en prueba: 44.30%
+TOTAL 60.394 s | nodos 3 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 15 [python] Jinga hilos=1: 182 imagenes, 18.01 s de computo
+nodo 18 [python] DESKTOP-SCUO763 hilos=1: 177 imagenes, 17.74 s de computo
+nodo 19 [python] DESKTOP-FMBHKTR hilos=1: 153 imagenes, 17.94 s de computo
+== [rep 2/2] distribuido | nodos=go | maquinas=3
+Entrenamiento distribuido: 3 nodos [go@Jingax1, go@DESKTOP-SCUO763x1, go@DESKTOP-FMBHKTRx1], 512 imagenes, 1 epocas, lote 64
+  nodo 20 fallo (timeout de heartbeat); se reasignan 20 imagenes al nodo 14
+epoca 1: 20.37 s, 25.1 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 2.45 s de computo (nodo mas lento) + 17.93 s de comunicacion y agregacion (88 %)
+acierto en prueba: 44.30%
+TOTAL 20.371 s | nodos 3 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 14 [go] Jinga hilos=1: 297 imagenes, 2.50 s de computo
+nodo 17 [go] DESKTOP-SCUO763 hilos=1: 215 imagenes, 2.16 s de computo
+nodo 20 [go] DESKTOP-FMBHKTR hilos=1: 0 imagenes, 0.00 s de computo
+== [rep 2/2] distribuido | nodos=all | maquinas=3
+Entrenamiento distribuido: 3 nodos [java@DESKTOP-FMBHKTRx1, go@Jingax1, go@DESKTOP-SCUO763x1], 512 imagenes, 1 epocas, lote 64
+epoca 1: 36.96 s, 13.9 img/s, perdida 1.3131, acierto 38.48%
+tiempo: 1.76 s de computo (nodo mas lento) + 35.20 s de comunicacion y agregacion (95 %)
+acierto en prueba: 44.30%
+TOTAL 36.962 s | nodos 3 | perdida 1.3131 | acierto entrenamiento 38.48%
+nodo 10 [java] DESKTOP-FMBHKTR hilos=1: 158 imagenes, 1.40 s de computo
+nodo 14 [go] Jinga hilos=1: 183 imagenes, 1.66 s de computo
+nodo 17 [go] DESKTOP-SCUO763 hilos=1: 171 imagenes, 1.56 s de computo
+Resultados en results/distribuido.csv (en la maquina del servidor)
+fin rc=0

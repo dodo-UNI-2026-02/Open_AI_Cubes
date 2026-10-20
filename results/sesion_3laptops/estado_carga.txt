@@ -1,0 +1,7 @@
+Servidor activo hace 5057 s | clientes conectados 5 | sesiones 5
+Consultas 2001 (errores 0, rechazadas 0) | latencia media 617.0 ms | cola 0
+Inferencias en nodos 2001 | en servidor (sin nodos) 0 | modelo v1
+Nodos conectados: 3
+  nodo 11 [go] DESKTOP-FMBHKTR (IP-laptop-Farid) nucleos=12 hilos=4 vel=316 img/s entren=1949 infer=0
+  nodo 18 [python] Jinga (IP-laptop-Jorly) nucleos=12 hilos=4 vel=5 img/s entren=294 infer=0
+  nodo 19 [java] DESKTOP-SCUO763 (IP-laptop-Hector) nucleos=12 hilos=4 vel=600 img/s entren=0 infer=0

@@ -1,0 +1,13 @@
+Servidor activo hace 1890 s | clientes conectados 5 | sesiones 5
+Consultas 2001 (errores 0, rechazadas 0) | latencia media 617.0 ms | cola 0
+Inferencias en nodos 2001 | en servidor (sin nodos) 0 | modelo v1
+Nodos conectados: 9
+  nodo 10 [java] DESKTOP-FMBHKTR (IP-laptop-Farid) nucleos=12 hilos=4 vel=600 img/s entren=0 infer=0
+  nodo 11 [go] DESKTOP-FMBHKTR (IP-laptop-Farid) nucleos=12 hilos=4 vel=600 img/s entren=0 infer=0
+  nodo 12 [python] DESKTOP-FMBHKTR (IP-laptop-Farid) nucleos=12 hilos=4 vel=60 img/s entren=0 infer=0
+  nodo 13 [java] DESKTOP-SCUO763 (IP-laptop-Hector) nucleos=12 hilos=4 vel=600 img/s entren=0 infer=0
+  nodo 14 [go] DESKTOP-SCUO763 (IP-laptop-Hector) nucleos=12 hilos=4 vel=600 img/s entren=0 infer=0
+  nodo 15 [java] Jinga (IP-laptop-Jorly) nucleos=12 hilos=4 vel=600 img/s entren=0 infer=0
+  nodo 16 [python] DESKTOP-SCUO763 (IP-laptop-Hector) nucleos=12 hilos=4 vel=60 img/s entren=0 infer=0
+  nodo 17 [go] Jinga (IP-laptop-Jorly) nucleos=12 hilos=4 vel=600 img/s entren=0 infer=0
+  nodo 18 [python] Jinga (IP-laptop-Jorly) nucleos=12 hilos=4 vel=60 img/s entren=0 infer=0

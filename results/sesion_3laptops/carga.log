@@ -1,0 +1,8 @@
+Generador de carga -> 34.176.215.27:5000 | 20 peticiones por cliente | delay 0-200 ms
+clientes=10 | enviadas=200 ok=200 errores=0 | 6.20 s | 32.3 resp/s | latencia media 134.6 ms p50 102.7 p95 245.4 p99 488.6 max 1598.2 | acierto 77.0% | por lenguaje {go=40, java=84, python=76}
+clientes=50 | enviadas=1000 ok=1000 errores=0 | 6.17 s | 162.0 resp/s | latencia media 159.3 ms p50 144.5 p95 273.9 p99 465.9 max 677.6 | acierto 79.9% | por lenguaje {go=213, java=393, python=394}
+clientes=100 | enviadas=2000 ok=2000 errores=0 | 6.41 s | 311.8 resp/s | latencia media 177.7 ms p50 165.0 p95 303.2 p99 383.4 max 415.9 | acierto 80.7% | por lenguaje {go=298, java=1056, python=646}
+clientes=200 | enviadas=4000 ok=4000 errores=0 | 6.99 s | 571.9 resp/s | latencia media 202.8 ms p50 169.3 p95 343.1 p99 392.2 max 435.9 | acierto 82.0% | por lenguaje {go=898, java=2292, python=810}
+clientes=400 | enviadas=8000 ok=8000 errores=0 | 11.36 s | 704.5 resp/s | latencia media 420.4 ms p50 401.6 p95 564.2 p99 614.5 max 692.0 | acierto 82.0% | por lenguaje {go=1845, java=4643, python=1512}
+clientes=800 | enviadas=16000 ok=16000 errores=0 | 21.24 s | 753.2 resp/s | latencia media 899.6 ms p50 892.0 p95 1036.6 p99 1092.3 max 1797.3 | acierto 81.9% | por lenguaje {go=4492, java=8643, python=2865}
+fin rc=0

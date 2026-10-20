@@ -29,7 +29,8 @@ import javax.imageio.ImageIO;
  * Uso: java -cp out cubes.tools.Charts results
  * Lee results/local.csv, results/distribuido.csv y results/carga.csv (los que existan) y escribe
  * matriz_tiempos.png, escalabilidad_tiempo.png, escalabilidad_speedup.png, escalabilidad_eficiencia.png,
- * costo_comunicacion.png, carga_latencia.png y carga_throughput.png en la misma carpeta.
+ * costo_comunicacion.png, escalabilidad_speedup_computo.png, carga_latencia.png y carga_throughput.png en la
+ * misma carpeta.
  *
  * Si un mismo caso se corrió varias veces (REPS en los scripts de bench), se usa la mediana.
  */
@@ -438,6 +439,8 @@ public final class Charts {
         // speedup con img/s (y no con segundos) para poder comparar corridas con distinta cantidad de imágenes
         Map<String, TreeMap<Double, List<Double>>> ipsByKey = new TreeMap<String, TreeMap<Double, List<Double>>>();
         Map<String, TreeMap<Double, List<Double>>> commByKey = new TreeMap<String, TreeMap<Double, List<Double>>>();
+        // img/s considerando solo el cómputo (nodo más lento de cada lote), sin la comunicación
+        Map<String, TreeMap<Double, List<Double>>> compIpsByKey = new TreeMap<String, TreeMap<Double, List<Double>>>();
         Map<String, Double> baseOf = new HashMap<String, Double>();
         // escenario paralelo en 1 máquina: si bench_local probó varios H (THREADS="1 2 4 8"), se ve la curva por hilos
         for (Map<String, String> r : local) {
@@ -467,6 +470,12 @@ public final class Charts {
             double comp = num(r, "computo_s"), comm = num(r, "comunicacion_s");
             if (!Double.isNaN(comp) && !Double.isNaN(comm) && comp + comm > 0) {
                 addTo(commByKey.get(key), x, 100 * comm / (comp + comm));
+                if (!compIpsByKey.containsKey(key)) {
+                    compIpsByKey.put(key, new TreeMap<Double, List<Double>>());
+                }
+                if (comp > 0) {
+                    addTo(compIpsByKey.get(key), x, num(r, "imagenes") * num(r, "epocas") / comp);
+                }
             }
             Double b = seq.get(lang.contains("+") ? "java" : lang);
             baseOf.put(key, b == null ? Double.NaN : b);
@@ -516,6 +525,46 @@ public final class Charts {
             lineChart(new File(dir, "costo_comunicacion.png"),
                     "Parte del tiempo en comunicacion y agregacion (no en computo)", "nucleos usados (nodos x hilos)",
                     "% del tiempo", commSeries, false, false);
+        }
+        // speedup solo del cómputo: cuánto acelera la paralelización si la red no costara nada. La base es el
+        // cómputo de 1 nodo con 1 hilo en el mismo montaje distribuido (mismo lenguaje; Java para el mixto),
+        // así se comparan nodos en las mismas condiciones y no contra una corrida local sin red.
+        Map<String, Double> compBase = new HashMap<String, Double>();
+        for (Map<String, String> r : dist) {
+            double comp = num(r, "computo_s");
+            if (num(r, "maquinas") == 1 && num(r, "hilos") == 1 && comp > 0) {
+                String lang = r.get("lenguaje").toLowerCase();
+                if (!compBase.containsKey(lang)) {
+                    List<Double> v = new ArrayList<Double>();
+                    for (Map<String, String> q : dist) {
+                        if (lang.equals(q.get("lenguaje").toLowerCase()) && num(q, "maquinas") == 1 && num(q, "hilos") == 1
+                                && num(q, "computo_s") > 0) {
+                            v.add(num(q, "imagenes") * num(q, "epocas") / num(q, "computo_s"));
+                        }
+                    }
+                    compBase.put(lang, median(v));
+                }
+            }
+        }
+        List<Series> compSpeed = new ArrayList<Series>();
+        for (Map.Entry<String, TreeMap<Double, List<Double>>> e : compIpsByKey.entrySet()) {
+            String lang = e.getKey().substring(e.getKey().indexOf("/ ") + 2);
+            String code = lang.startsWith("Java") ? "java" : lang.startsWith("Python") ? "python"
+                    : lang.startsWith("Go") ? "go" : "java";
+            Double base = compBase.get(code);
+            if (base == null || Double.isNaN(base)) {
+                continue;
+            }
+            Series sc = new Series(e.getKey());
+            for (Map.Entry<Double, List<Double>> p : e.getValue().entrySet()) {
+                sc.points.add(new double[] {p.getKey(), median(p.getValue()) / base});
+            }
+            compSpeed.add(sc);
+        }
+        if (!compSpeed.isEmpty()) {
+            lineChart(new File(dir, "escalabilidad_speedup_computo.png"),
+                    "Speedup del computo vs. 1 nodo con 1 hilo (sin contar la comunicacion)", "nucleos usados (nodos x hilos)", "speedup",
+                    compSpeed, false, true);
         }
 
         // 3) Pruebas de carga

@@ -1,0 +1,69 @@
+﻿inicio 2026-10-20T15:36:14
+== [rep 1/3] Java secuencial (1 hilos, afinidad 0x3)
+LocalTrain: hilos=1 imagenes=512 epocas=1 lote=64 clases=4
+  epoca 1: 2.03 s, 252.8 img/s, perdida 1.3131, acierto entrenamiento 38.48%
+TOTAL 2.030 s
+== [rep 1/3] Go secuencial (1 hilos, afinidad 0x3)
+== [rep 1/3] Python secuencial (1 hilos, afinidad 0x3)
+LocalTrain: hilos=1 imagenes=512 epocas=1 lote=64 clases=4
+  epoca 1: 20.37 s, 25.1 img/s, perdida 1.3131, acierto entrenamiento 38.48%
+TOTAL 20.371 s
+== [rep 1/3] Java paralelo (4 hilos, afinidad 0x55)
+LocalTrain: hilos=4 imagenes=512 epocas=1 lote=64 clases=4
+  epoca 1: 0.77 s, 666.4 img/s, perdida 1.3131, acierto entrenamiento 38.48%
+TOTAL 0.769 s
+== [rep 1/3] Go paralelo (4 hilos, afinidad 0x55)
+== [rep 1/3] Python paralelo (4 hilos, afinidad 0x55)
+LocalTrain: hilos=4 imagenes=512 epocas=1 lote=64 clases=4
+  epoca 1: 7.20 s, 71.1 img/s, perdida 1.3131, acierto entrenamiento 38.48%
+TOTAL 7.197 s
+== [rep 2/3] Java secuencial (1 hilos, afinidad 0x3)
+LocalTrain: hilos=1 imagenes=512 epocas=1 lote=64 clases=4
+  epoca 1: 1.99 s, 257.6 img/s, perdida 1.3131, acierto entrenamiento 38.48%
+TOTAL 1.988 s
+== [rep 2/3] Go secuencial (1 hilos, afinidad 0x3)
+== [rep 2/3] Python secuencial (1 hilos, afinidad 0x3)
+LocalTrain: hilos=1 imagenes=512 epocas=1 lote=64 clases=4
+  epoca 1: 21.53 s, 23.8 img/s, perdida 1.3131, acierto entrenamiento 38.48%
+TOTAL 21.526 s
+== [rep 2/3] Java paralelo (4 hilos, afinidad 0x55)
+LocalTrain: hilos=4 imagenes=512 epocas=1 lote=64 clases=4
+  epoca 1: 0.79 s, 651.5 img/s, perdida 1.3131, acierto entrenamiento 38.48%
+TOTAL 0.788 s
+== [rep 2/3] Go paralelo (4 hilos, afinidad 0x55)
+== [rep 2/3] Python paralelo (4 hilos, afinidad 0x55)
+LocalTrain: hilos=4 imagenes=512 epocas=1 lote=64 clases=4
+  epoca 1: 8.89 s, 57.6 img/s, perdida 1.3131, acierto entrenamiento 38.48%
+TOTAL 8.890 s
+== [rep 3/3] Java secuencial (1 hilos, afinidad 0x3)
+LocalTrain: hilos=1 imagenes=512 epocas=1 lote=64 clases=4
+  epoca 1: 1.98 s, 258.4 img/s, perdida 1.3131, acierto entrenamiento 38.48%
+TOTAL 1.983 s
+== [rep 3/3] Go secuencial (1 hilos, afinidad 0x3)
+== [rep 3/3] Python secuencial (1 hilos, afinidad 0x3)
+LocalTrain: hilos=1 imagenes=512 epocas=1 lote=64 clases=4
+  epoca 1: 19.69 s, 26.0 img/s, perdida 1.3131, acierto entrenamiento 38.48%
+TOTAL 19.686 s
+== [rep 3/3] Java paralelo (4 hilos, afinidad 0x55)
+LocalTrain: hilos=4 imagenes=512 epocas=1 lote=64 clases=4
+  epoca 1: 0.71 s, 724.5 img/s, perdida 1.3131, acierto entrenamiento 38.48%
+TOTAL 0.708 s
+== [rep 3/3] Go paralelo (4 hilos, afinidad 0x55)
+== [rep 3/3] Python paralelo (4 hilos, afinidad 0x55)
+LocalTrain: hilos=4 imagenes=512 epocas=1 lote=64 clases=4
+  epoca 1: 6.81 s, 75.2 img/s, perdida 1.3131, acierto entrenamiento 38.48%
+TOTAL 6.807 s
+fin 2026-10-20T15:37:55
+== [rep 1/3] Go secuencial (1 hilos, afinidad 0x3)
+TOTAL 2.126 s
+== [rep 1/3] Go paralelo (4 hilos, afinidad 0x55)
+TOTAL 0.575 s
+== [rep 2/3] Go secuencial (1 hilos, afinidad 0x3)
+TOTAL 2.072 s
+== [rep 2/3] Go paralelo (4 hilos, afinidad 0x55)
+TOTAL 0.635 s
+== [rep 3/3] Go secuencial (1 hilos, afinidad 0x3)
+TOTAL 2.058 s
+== [rep 3/3] Go paralelo (4 hilos, afinidad 0x55)
+TOTAL 0.598 s
+fin go 2026-10-20T15:38:27
