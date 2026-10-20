@@ -429,12 +429,19 @@ public final class ChatClient {
                 12f, Font.PLAIN, MUTED));
         addRow(mine, true);
         final Bubble bot = botBubble();
-        final JLabel progress = text("Bot: enviando consultas...", 14f, Font.ITALIC, MUTED);
+        final JLabel progress = text("Bot: enviando consultas... 0 de " + n, 14f, Font.ITALIC, MUTED);
+        final JLabel barsTitle = text("Consultas resueltas por cada nodo", 12f, Font.PLAIN, MUTED);
+        final NodeBars bars = new NodeBars();
         bot.add(progress);
+        bot.add(gap(6));
+        bot.add(barsTitle);
+        bot.add(gap(2));
+        bot.add(bars);
         addRow(bot, false);
         setBusy(true);
         setStatus("Prueba de carga: 0 de " + n);
-        new SwingWorker<LoadStats, Integer>() {
+        // se publica {consultas hechas, nombre del nodo que respondió (null si hubo error), id del nodo}
+        new SwingWorker<LoadStats, Object[]>() {
             @Override
             protected LoadStats doInBackground() throws Exception {
                 LoadStats st = new LoadStats();
@@ -449,11 +456,14 @@ public final class ChatClient {
                     System.arraycopy(samples.raw, samples.pixelOffset(idx), px, 0, px.length);
                     long q0 = System.nanoTime();
                     st.sent++;
+                    String node = null;
+                    int nodeId = 0;
                     try {
                         ServerConnection.Result res = conn.identify(Msg.FORMAT_RAW, px);
                         st.latencies.add((System.nanoTime() - q0) / 1000000);
                         st.ok++;
-                        String node = nodeName(res.nodeId, res.nodeLang);
+                        node = nodeName(res.nodeId, res.nodeLang);
+                        nodeId = res.nodeId;
                         Integer c = st.byNode.get(node);
                         st.byNode.put(node, c == null ? 1 : c + 1);
                         String truth = sampleTruth(idx);
@@ -463,17 +473,23 @@ public final class ChatClient {
                     } catch (Exception ex) {
                         st.errors++;
                     }
-                    publish(i + 1);
+                    publish(new Object[] {i + 1, node, nodeId});
                 }
                 st.totalMs = (System.nanoTime() - t0) / 1000000;
                 return st;
             }
 
             @Override
-            protected void process(List<Integer> chunks) {
-                int done = chunks.get(chunks.size() - 1);
+            protected void process(List<Object[]> chunks) {
+                for (Object[] c : chunks) {
+                    if (c[1] != null) {
+                        bars.add((String) c[1], nodeColor((Integer) c[2]));
+                    }
+                }
+                int done = (Integer) chunks.get(chunks.size() - 1)[0];
                 progress.setText("Bot: enviando consultas... " + done + " de " + n);
                 setStatus("Prueba de carga: " + done + " de " + n);
+                bot.revalidate();
             }
 
             @Override
@@ -492,25 +508,28 @@ public final class ChatClient {
                     long p50 = percentile(lat, 50), p95 = percentile(lat, 95), max = lat.isEmpty() ? 0 : lat.get(lat.size() - 1);
                     double secs = st.totalMs / 1000.0;
                     double rps = secs > 0 ? st.ok / secs : 0;
-                    JLabel title = text("x", 15f, Font.BOLD, TEXT);
+                    JLabel title = text("x", 16f, Font.BOLD, TEXT);
                     title.setText("<html><font color='#2E7D32'>Bot:</font>&nbsp;prueba de carga terminada</html>");
                     bot.add(title);
                     bot.add(gap(4));
-                    bot.add(text(String.format(Locale.ROOT, "Latencia media %.0f ms · p50 %d · p95 %d · máx %d ms",
-                            mean, p50, p95, max), 13f, Font.BOLD, NAVY));
-                    bot.add(text(String.format(Locale.ROOT, "%d de %d respondidas · %d errores · %.1f s · %.1f resp/s",
+                    bot.add(text(String.format(Locale.ROOT, "Latencia media: %.0f ms", mean), 15f, Font.BOLD, NAVY));
+                    bot.add(text(String.format(Locale.ROOT, "%d de %d respondidas · %d errores · %.1f s · %.1f respuestas/s",
                             st.ok, st.sent, st.errors, secs, rps), 12f, Font.PLAIN, MUTED));
-                    StringBuilder nodes = new StringBuilder();
-                    for (Map.Entry<String, Integer> e : st.byNode.entrySet()) {
-                        nodes.append(nodes.length() == 0 ? "" : " · ").append(e.getKey()).append(": ").append(e.getValue());
-                    }
-                    bot.add(text(nodes.length() == 0 ? "ningún nodo respondió" : nodes.toString(), 12f, Font.PLAIN, MUTED));
                     if (st.ok > 0) {
                         bot.add(text(String.format(Locale.ROOT, "Acierto %.0f %% (%d de %d)", 100.0 * st.hits / st.ok,
                                 st.hits, st.ok), 12f, Font.PLAIN, MUTED));
                     }
-                    setStatus(String.format(Locale.ROOT, "Prueba de carga: %d de %d · %.1f resp/s · latencia media %.0f ms",
+                    bot.add(gap(8));
+                    bot.add(barsTitle);
+                    bot.add(gap(2));
+                    bot.add(bars);
+                    StringBuilder nodes = new StringBuilder();
+                    for (Map.Entry<String, Integer> e : st.byNode.entrySet()) {
+                        nodes.append(nodes.length() == 0 ? "" : " · ").append(e.getKey()).append(": ").append(e.getValue());
+                    }
+                    setStatus(String.format(Locale.ROOT, "Prueba de carga: %d de %d · %.1f respuestas/s · latencia media %.0f ms",
                             st.ok, st.sent, rps, mean));
+                    // el CSV guarda también p50, p95 y máximo para el informe, aunque el chat no los muestre
                     saveLoadRow(n, st, secs, rps, mean, p50, p95, max, nodes.toString());
                 } catch (Exception ex) {
                     Throwable c = ex.getCause() == null ? ex : ex.getCause();
