@@ -25,6 +25,30 @@ routers ni en el firewall de Windows.
 Lo más cómodo de Google Cloud: se entra al servidor con el **botón "SSH" de la consola**, que abre
 la terminal en el navegador. No hay archivos de claves que manejar.
 
+## Comandos rápidos (día a día)
+
+Servidor del equipo: VM `oac-servidor` en `southamerica-west1-a`, IP fija **34.176.215.27**.
+
+| Qué | Dónde | Comando |
+|---|---|---|
+| Encender | Consola → Instancias de VM | ⋮ → *Iniciar/Reanudar* |
+| Entrar | Consola → Instancias de VM | Botón **SSH** (si entra con otro usuario: `sudo -iu dodo`) |
+| Arrancar el servidor | SSH | `cd ~/Open_AI_Cubes && tmux new -s oac` y luego `JAVA_MEM=-Xmx600m scripts/servidor.sh` |
+| Salir dejándolo vivo | SSH, dentro de tmux | `Ctrl+B` y luego `D` |
+| **Volver a la consola del servidor** | SSH | **`tmux attach -t oac`** (ahí se escribe `estado`, `verbose` o `salir`) |
+| ¿Ya está corriendo? | SSH | `tmux ls` (si aparece `oac`, no arrancarlo otra vez: daría `Address already in use`) |
+| Actualizar el código | SSH, con el servidor detenido | `git pull && bash scripts/compilar.sh` |
+| Probar el puerto | Laptop (PowerShell) | `Test-NetConnection 34.176.215.27 -Port 6000` |
+| Nodo | Laptop | `scripts\nodo_java.bat 34.176.215.27 4` (o `nodo_go`, `nodo_python`) |
+| Chat | Laptop | `scripts\cliente.bat 34.176.215.27` |
+| Estado | Laptop | `java -cp out cubes.client.AdminClient --host 34.176.215.27 estado` |
+| Apagar | Consola → Instancias de VM | ⋮ → **Detener** (al terminar cada sesión) |
+
+Probado el 20 de octubre de 2026: servidor en Santiago, nodo Java en una laptop en Lima y el chat
+identificando una foto de gato con 100 % de confianza. La primera consulta tardó ~3 s porque el
+nodo recibe primero los pesos del modelo (~1 MB) y Java calienta; las siguientes son mucho más
+rápidas.
+
 ## 0. Cuenta y prueba gratuita (una sola para todo el equipo)
 
 1. Entrar a https://console.cloud.google.com con una **cuenta de Gmail personal**. Las cuentas
