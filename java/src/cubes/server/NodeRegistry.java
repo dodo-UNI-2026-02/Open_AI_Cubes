@@ -173,18 +173,23 @@ public final class NodeRegistry {
         int limit = maxNodes <= 0 ? Integer.MAX_VALUE : maxNodes;
         List<NodeHandle> out = new ArrayList<NodeHandle>();
         Set<String> usedHosts = new HashSet<String>();
-        // Primera pasada: una máquina por nodo. Segunda: si faltan, se permiten máquinas repetidas.
-        for (int pass = 0; pass < 2; pass++) {
+        Set<String> usedLangs = new HashSet<String>();
+        // Pasada 0: máquina y lenguaje nuevos (así el clúster mixto con 3 máquinas queda Java + Go + Python,
+        // uno en cada una). Pasada 1: solo máquina nueva. Pasada 2: si aún faltan, máquinas repetidas.
+        for (int pass = 0; pass < 3; pass++) {
             for (NodeHandle n : roundRobin) {
                 if (out.size() >= limit) {
                     break;
                 }
                 String hostKey = n.address + "/" + n.hostname;
-                if (out.contains(n) || (pass == 0 && usedHosts.contains(hostKey))) {
+                String lang = n.lang.toLowerCase();
+                if (out.contains(n) || (pass <= 1 && usedHosts.contains(hostKey))
+                        || (pass == 0 && usedLangs.contains(lang))) {
                     continue;
                 }
                 out.add(n);
                 usedHosts.add(hostKey);
+                usedLangs.add(lang);
             }
         }
         return out;
