@@ -12,7 +12,7 @@ echo "== 1/5 Paquetes: JDK (para compilar con --release 8), unzip, git, tmux"
 sudo apt-get update -qq
 sudo apt-get install -y -qq openjdk-17-jdk-headless unzip git tmux curl >/dev/null
 
-echo "== 2/5 Swap de 1 GB (la VM B1s solo tiene 1 GB de RAM)"
+echo "== 2/5 Swap de 1 GB (la VM chica de la nube tiene solo 1 GB de RAM)"
 if [ ! -f /swapfile ]; then
   sudo fallocate -l 1G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile >/dev/null && sudo swapon /swapfile
   echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab >/dev/null
@@ -26,6 +26,7 @@ else
   DIR="$HOME/Open_AI_Cubes"
 fi
 cd "$DIR"
+chmod +x scripts/*.sh   # por si se clonó desde un repo sin permisos de ejecución
 
 echo "== 4/5 Datos de entrenamiento (Release v1.0, 54 MB)"
 if [ ! -f data/train.bin ]; then
@@ -33,7 +34,7 @@ if [ ! -f data/train.bin ]; then
 fi
 ls -lh data/*.bin
 
-echo "== 5/5 Compilar (solo Java: en la nube corre el servidor; los nodos van en el laboratorio)"
+echo "== 5/5 Compilar (solo Java: aquí corre el servidor; los nodos van en las laptops, el aviso de Go es normal)"
 bash scripts/compilar.sh
 
 IP=$(curl -fsS https://api.ipify.org 2>/dev/null || echo "<IP_PUBLICA>")
@@ -44,7 +45,7 @@ Listo. Para arrancar el servidor y que siga vivo al cerrar SSH:
   tmux new -s oac            # (para volver luego: tmux attach -t oac; para salir sin cerrarlo: Ctrl+B y luego D)
   JAVA_MEM=-Xmx600m scripts/servidor.sh
 
-Desde cada laptop, en Windows (puertos 5000 y 6000 abiertos en el firewall de la nube):
+Esto NO se corre aquí: en cada laptop, en Windows (puertos 5000 y 6000 abiertos en el firewall de la nube):
   scripts\\nodo_java.bat   $IP 4
   scripts\\nodo_go.bat     $IP 4
   scripts\\nodo_python.bat $IP 4
