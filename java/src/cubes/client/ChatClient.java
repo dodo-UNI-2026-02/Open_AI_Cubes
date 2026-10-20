@@ -62,10 +62,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.Scrollable;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.TransferHandler;
@@ -104,6 +106,9 @@ public final class ChatClient {
 
     private static final int MAX_FOLDER_IMAGES = 2000;
     private static final int SAMPLE_BATCH = 200;
+    /** Prueba de carga desde el chat: delay aleatorio entre consultas, como pide el enunciado. */
+    private static final int LOAD_MIN_DELAY_MS = 0, LOAD_MAX_DELAY_MS = 200;
+    private static final Color LOAD_GREEN = new Color(0x0F6E56);
     private static final String[] IMAGE_EXT = {"jpg", "jpeg", "png", "bmp", "gif"};
 
     private final ServerConnection conn;
@@ -119,6 +124,8 @@ public final class ChatClient {
     private final List<JButton> actions = new ArrayList<JButton>();
     private JButton sampleButton;
     private JButton sampleBatchButton;
+    private JButton loadButton;
+    private JSpinner loadCount;
     private JLabel status;
     private boolean busy;
     private static int windowHeight = 780;
@@ -157,11 +164,30 @@ public final class ChatClient {
         sampleButton.addActionListener(e -> identifySample());
         sampleBatchButton.addActionListener(e -> identifySampleBatch(SAMPLE_BATCH));
         actions.addAll(Arrays.asList(bImage, bFolder, sampleButton, sampleBatchButton));
-        JPanel buttons = new JPanel(new GridLayout(2, 2, 8, 8));
-        buttons.setOpaque(false);
+        JPanel grid = new JPanel(new GridLayout(2, 2, 8, 8));
+        grid.setOpaque(false);
         for (JButton b : actions) {
-            buttons.add(b);
+            grid.add(b);
         }
+        // tercera fila: prueba de carga con N consultas de una imagen, cada una con delay aleatorio
+        loadCount = new JSpinner(new SpinnerNumberModel(100, 1, 5000, 10));
+        loadCount.setPreferredSize(new Dimension(78, 30));
+        loadButton = new FlatButton("Prueba de carga (delay " + LOAD_MIN_DELAY_MS + "–" + LOAD_MAX_DELAY_MS + " ms)",
+                LOAD_GREEN, Color.WHITE);
+        loadButton.addActionListener(e -> runLoadTest(((Number) loadCount.getValue()).intValue()));
+        actions.add(loadButton);
+        JPanel countBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+        countBox.setOpaque(false);
+        countBox.add(text("Consultas", 12f, Font.PLAIN, MUTED));
+        countBox.add(loadCount);
+        JPanel loadRow = new JPanel(new BorderLayout(8, 0));
+        loadRow.setOpaque(false);
+        loadRow.add(countBox, BorderLayout.WEST);
+        loadRow.add(loadButton, BorderLayout.CENTER);
+        JPanel buttons = new JPanel(new BorderLayout(0, 8));
+        buttons.setOpaque(false);
+        buttons.add(grid, BorderLayout.CENTER);
+        buttons.add(loadRow, BorderLayout.SOUTH);
 
         status = new JLabel(" ");
         status.setForeground(MUTED);
@@ -328,6 +354,10 @@ public final class ChatClient {
         }
         sampleButton.setEnabled(!busy && samples != null);
         sampleBatchButton.setEnabled(!busy && samples != null);
+        if (loadButton != null) {
+            loadButton.setEnabled(!busy && samples != null);
+            loadCount.setEnabled(!busy);
+        }
     }
 
     private Color nodeColor(int nodeId) {
@@ -374,6 +404,162 @@ public final class ChatClient {
         l.setAlignmentX(Component.LEFT_ALIGNMENT);
         l.setBorder(BorderFactory.createEmptyBorder(6, 0, 2, 0));
         return l;
+    }
+
+    // ------------------------------------------------------------------ prueba de carga
+
+    /** Resultado de una prueba de carga hecha desde este chat. */
+    private static final class LoadStats {
+        int sent, ok, errors, hits;
+        long totalMs;
+        final List<Long> latencies = new ArrayList<Long>();
+        final Map<String, Integer> byNode = new LinkedHashMap<String, Integer>();
+    }
+
+    /**
+     * Manda n consultas de una imagen de prueba cada una, una tras otra por la misma conexión, con un delay
+     * aleatorio de 0 a 200 ms entre consultas. Si varios integrantes la lanzan a la vez, cada uno ve cómo sube
+     * su latencia porque el servidor y los nodos atienden a todos. Al final muestra latencia, throughput y
+     * reparto por nodo, y agrega una fila a results/carga_clientes_reales.csv.
+     */
+    private void runLoadTest(final int n) {
+        Bubble mine = myBubble();
+        mine.add(text("Yo: Prueba de carga", 14f, Font.BOLD, NAVY));
+        mine.add(text(n + " consultas · 1 imagen c/u · delay " + LOAD_MIN_DELAY_MS + "–" + LOAD_MAX_DELAY_MS + " ms",
+                12f, Font.PLAIN, MUTED));
+        addRow(mine, true);
+        final Bubble bot = botBubble();
+        final JLabel progress = text("Bot: enviando consultas...", 14f, Font.ITALIC, MUTED);
+        bot.add(progress);
+        addRow(bot, false);
+        setBusy(true);
+        setStatus("Prueba de carga: 0 de " + n);
+        new SwingWorker<LoadStats, Integer>() {
+            @Override
+            protected LoadStats doInBackground() throws Exception {
+                LoadStats st = new LoadStats();
+                Random r = new Random();
+                long t0 = System.nanoTime();
+                for (int i = 0; i < n; i++) {
+                    if (i > 0) {
+                        Thread.sleep(LOAD_MIN_DELAY_MS + r.nextInt(LOAD_MAX_DELAY_MS - LOAD_MIN_DELAY_MS + 1));
+                    }
+                    int idx = r.nextInt(samples.size);
+                    byte[] px = new byte[Params.IN_SIZE];
+                    System.arraycopy(samples.raw, samples.pixelOffset(idx), px, 0, px.length);
+                    long q0 = System.nanoTime();
+                    st.sent++;
+                    try {
+                        ServerConnection.Result res = conn.identify(Msg.FORMAT_RAW, px);
+                        st.latencies.add((System.nanoTime() - q0) / 1000000);
+                        st.ok++;
+                        String node = nodeName(res.nodeId, res.nodeLang);
+                        Integer c = st.byNode.get(node);
+                        st.byNode.put(node, c == null ? 1 : c + 1);
+                        String truth = sampleTruth(idx);
+                        if (truth != null && truth.equals(res.label)) {
+                            st.hits++;
+                        }
+                    } catch (Exception ex) {
+                        st.errors++;
+                    }
+                    publish(i + 1);
+                }
+                st.totalMs = (System.nanoTime() - t0) / 1000000;
+                return st;
+            }
+
+            @Override
+            protected void process(List<Integer> chunks) {
+                int done = chunks.get(chunks.size() - 1);
+                progress.setText("Bot: enviando consultas... " + done + " de " + n);
+                setStatus("Prueba de carga: " + done + " de " + n);
+            }
+
+            @Override
+            protected void done() {
+                setBusy(false);
+                bot.removeAll();
+                try {
+                    LoadStats st = get();
+                    List<Long> lat = new ArrayList<Long>(st.latencies);
+                    Collections.sort(lat);
+                    double mean = 0;
+                    for (long v : lat) {
+                        mean += v;
+                    }
+                    mean = lat.isEmpty() ? 0 : mean / lat.size();
+                    long p50 = percentile(lat, 50), p95 = percentile(lat, 95), max = lat.isEmpty() ? 0 : lat.get(lat.size() - 1);
+                    double secs = st.totalMs / 1000.0;
+                    double rps = secs > 0 ? st.ok / secs : 0;
+                    JLabel title = text("x", 15f, Font.BOLD, TEXT);
+                    title.setText("<html><font color='#2E7D32'>Bot:</font>&nbsp;prueba de carga terminada</html>");
+                    bot.add(title);
+                    bot.add(gap(4));
+                    bot.add(text(String.format(Locale.ROOT, "Latencia media %.0f ms · p50 %d · p95 %d · máx %d ms",
+                            mean, p50, p95, max), 13f, Font.BOLD, NAVY));
+                    bot.add(text(String.format(Locale.ROOT, "%d de %d respondidas · %d errores · %.1f s · %.1f resp/s",
+                            st.ok, st.sent, st.errors, secs, rps), 12f, Font.PLAIN, MUTED));
+                    StringBuilder nodes = new StringBuilder();
+                    for (Map.Entry<String, Integer> e : st.byNode.entrySet()) {
+                        nodes.append(nodes.length() == 0 ? "" : " · ").append(e.getKey()).append(": ").append(e.getValue());
+                    }
+                    bot.add(text(nodes.length() == 0 ? "ningún nodo respondió" : nodes.toString(), 12f, Font.PLAIN, MUTED));
+                    if (st.ok > 0) {
+                        bot.add(text(String.format(Locale.ROOT, "Acierto %.0f %% (%d de %d)", 100.0 * st.hits / st.ok,
+                                st.hits, st.ok), 12f, Font.PLAIN, MUTED));
+                    }
+                    setStatus(String.format(Locale.ROOT, "Prueba de carga: %d de %d · %.1f resp/s · latencia media %.0f ms",
+                            st.ok, st.sent, rps, mean));
+                    saveLoadRow(n, st, secs, rps, mean, p50, p95, max, nodes.toString());
+                } catch (Exception ex) {
+                    Throwable c = ex.getCause() == null ? ex : ex.getCause();
+                    bot.add(text("Bot: la prueba de carga falló: " + c.getMessage(), 14f, Font.PLAIN, BAD));
+                    setStatus("La prueba de carga no terminó.");
+                }
+                bot.revalidate();
+                scrollToBottom();
+            }
+        }.execute();
+    }
+
+    private static long percentile(List<Long> sorted, int p) {
+        if (sorted.isEmpty()) {
+            return 0;
+        }
+        int i = (int) Math.ceil(p / 100.0 * sorted.size()) - 1;
+        return sorted.get(Math.max(0, Math.min(sorted.size() - 1, i)));
+    }
+
+    /** Una fila por prueba en results/carga_clientes_reales.csv (para la tabla de clientes reales del informe). */
+    private void saveLoadRow(int n, LoadStats st, double secs, double rps, double mean, long p50, long p95, long max,
+                             String nodes) {
+        File f = new File("results", "carga_clientes_reales.csv");
+        try {
+            f.getAbsoluteFile().getParentFile().mkdirs();
+            boolean header = !f.exists();
+            String host;
+            try {
+                host = java.net.InetAddress.getLocalHost().getHostName();
+            } catch (Exception e) {
+                host = "?";
+            }
+            java.io.PrintWriter w = new java.io.PrintWriter(new java.io.OutputStreamWriter(
+                    new java.io.FileOutputStream(f, true), java.nio.charset.StandardCharsets.UTF_8));
+            try {
+                if (header) {
+                    w.println("fecha,usuario,maquina,consultas,ok,errores,segundos,resp_por_s,lat_media_ms,p50_ms,p95_ms,max_ms,acierto,por_nodo");
+                }
+                w.printf(Locale.ROOT, "%s,%s,%s,%d,%d,%d,%.3f,%.2f,%.1f,%d,%d,%d,%.4f,\"%s\"%n",
+                        new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()),
+                        user.replace(",", " "), host, n, st.ok, st.errors, secs, rps, mean, p50, p95, max,
+                        st.ok == 0 ? 0.0 : (double) st.hits / st.ok, nodes.replace("\"", "'"));
+            } finally {
+                w.close();
+            }
+        } catch (Exception e) {
+            setStatus("No se pudo guardar " + f.getPath() + ": " + e.getMessage());
+        }
     }
 
     // ------------------------------------------------------------------ una imagen
