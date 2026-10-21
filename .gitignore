@@ -9,9 +9,10 @@ __pycache__/
 data/train.bin
 para_release/
 
-# Resultados de corridas nuevas (los de ejemplo están en results/ejemplo_vm/)
+# Resultados de corridas nuevas (los del informe están en results/sesion_3laptops/)
 results/*.csv
 results/*.png
 data/model_anterior.bin
+data/model_minimo.bin
 results/chat_history.txt
 dist/

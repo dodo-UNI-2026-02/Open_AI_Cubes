@@ -29,10 +29,6 @@ func NewChunkExecutor(threads int) *ChunkExecutor {
 	return &ChunkExecutor{threads: threads}
 }
 
-func (ex *ChunkExecutor) Threads() int {
-	return ex.threads
-}
-
 // ForRange divide [0, n) en hasta H micro chunks contiguos, lanza una goroutine por
 // chunk y espera a todas (barrera). Si un chunk entra en pánico, el pánico se repite
 // en la goroutine que llamó, igual que Java relanza la excepción de f.get().

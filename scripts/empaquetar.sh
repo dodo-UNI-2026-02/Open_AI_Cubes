@@ -3,8 +3,9 @@
 # Uso: scripts/empaquetar.sh entrega   -> dist/OpenAICubes_entrega.zip  (para Univirtual)
 #      scripts/empaquetar.sh kit       -> dist/OpenAICubes_kit.zip      (listo para correr en las laptops Windows o en Linux)
 #
-# entrega: solo fuentes (.java .go .py), scripts, pesos y datos de prueba, docs y los PDF de
-#          informe, presentación y notas. Es lo que pide el enunciado; nada de .git, out/ ni binarios.
+# entrega: solo fuentes (.java .go .py), scripts, pesos y datos de prueba, docs, resultados medidos,
+#          fotos de prueba y los PDF de informe, presentación y notas. El plan B (minimo-alternativo/)
+#          no va: se entrega aparte si se usa. Es lo que pide el enunciado; nada de .git, out/ ni binarios.
 #          train.bin (61 MB) no va por defecto: está en el Release v1.0. Para incluirlo: CON_TRAIN=1
 # kit:     lo mismo pero ya compilado: clases Java 8 en out/ y nodo Go para Windows y Linux x86-64, más
 #          train.bin si existe. Se copia a cada laptop y no hace falta compilar.
@@ -21,11 +22,12 @@ copiar() { mkdir -p "$D/$(dirname "$1")" && cp -r "$1" "$D/$1"; }
 copiar README.md
 copiar java/src
 mkdir -p "$D/go" && cp go/*.go go/go.mod go/README.md "$D/go/" 2>/dev/null || cp go/*.go go/go.mod "$D/go/"
-mkdir -p "$D/python" && cp python/node.py "$D/python/"
+mkdir -p "$D/python" && cp python/node.py python/README.md "$D/python/"
 mkdir -p "$D/scripts" && cp scripts/*.sh scripts/*.bat "$D/scripts/"
 mkdir -p "$D/docs/informe" && cp docs/*.md "$D/docs/" && cp docs/informe/*.pdf "$D/docs/informe/"
 mkdir -p "$D/data" && cp data/classes.txt data/model.bin data/init_weights.bin data/ref.bin data/test.bin "$D/data/"
-mkdir -p "$D/results/ejemplo_vm" && cp results/ejemplo_vm/*.csv "$D/results/ejemplo_vm/"
+mkdir -p "$D/results/sesion_3laptops" && cp results/sesion_3laptops/*.csv results/sesion_3laptops/*.png "$D/results/sesion_3laptops/"
+copiar imagenes_para_probar
 
 if [ "$MODO" = "kit" ]; then
   bash scripts/compilar.sh >/dev/null

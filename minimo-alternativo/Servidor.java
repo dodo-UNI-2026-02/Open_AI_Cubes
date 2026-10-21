@@ -113,7 +113,9 @@ public class Servidor {
     }
 
     public static void main(String[] args) throws Exception {
-        pesos = Cnn.cargarPesos(Cnn.DATA + "model.bin");
+        // Si ya se entrenó con esta versión se usa su modelo; si no, el de la versión principal.
+        java.io.File propio = new java.io.File(Cnn.DATA + "model_minimo.bin");
+        pesos = Cnn.cargarPesos(propio.exists() ? propio.getPath() : Cnn.DATA + "model.bin");
         clases = Cnn.clasesNombres();
         hilo(() -> aceptar(6000, true));
         hilo(() -> aceptar(5000, false));
@@ -300,8 +302,9 @@ public class Servidor {
         if (guardar) {
             pesos = w;
             version++;
-            Cnn.guardarPesos(w, Cnn.DATA + "model.bin");
-            System.out.println("Modelo nuevo publicado para el chat y guardado en data/model.bin");
+            // Archivo propio: así entrenar aquí no pisa data/model.bin de la versión principal.
+            Cnn.guardarPesos(w, Cnn.DATA + "model_minimo.bin");
+            System.out.println("Modelo nuevo publicado para el chat y guardado en data/model_minimo.bin");
         }
     }
 

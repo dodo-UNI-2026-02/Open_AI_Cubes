@@ -40,8 +40,8 @@ En los comandos, `S` es la IP del servidor y `H` es el número de hilos por nodo
       medido.
 - [ ] **Fotos para el chat:** 2 o 3 fotos reales por clase (avión, auto, gato, barco), una foto
       "trampa" de otra cosa (por ejemplo un panda, como en el dibujo del enunciado) y una carpeta
-      con unas 20 fotos para "Identificar carpeta". Ya hay una buena del gato en
-      `Concurrente/PARCIAL/AiCube_Remotion_Para_Claude/foto_gato/gato_1264.jpg`.
+      con unas 20 fotos para "Identificar carpeta". Ya hay tres fotos de gato en
+      `imagenes_para_probar/`.
 - [ ] **Plan B sin red:** una laptop con todo local (`scripts/demo_local.sh 2`, o
       `scripts\demo_local.bat 2` en Windows).
 - [ ] **Plan nube (opcional):** servidor de Google Cloud listo y detenido; se enciende 10 minutos antes. Ver
@@ -104,8 +104,8 @@ REPS=1 scripts/bench_distribuido.sh S distribuido "1 2 3" 512
 REPS=1 scripts/bench_distribuido.sh S paralelo_distribuido "1 2 3" 512
 scripts/graficas.sh
 ```
-- En vivo conviene `REPS=1` y 512 imágenes para que tarde poco. Para el informe, `REPS=3` y 1024
-  o más imágenes.
+- En vivo conviene `REPS=1` y 512 imágenes para que tarde poco. El informe usó 512 imágenes, con 3
+  repeticiones en local y 2 en distribuido (`results/sesion_3laptops/`).
 - **Qué explicar:** speedup, eficiencia y costo de comunicación (sección 5).
 
 ### P5. "Apaguen un nodo en pleno trabajo" (tolerancia a fallos)
@@ -184,8 +184,9 @@ Lo más típico es cambiar los hilos, el lote, el puerto o agregar un mensaje. S
   La eficiencia baja al subir los nodos: aumenta el costo fijo de mandar pesos (~1 MB por nodo y
   por lote) y de sumar gradientes, mientras el cómputo por nodo se achica.
 - **Costo de comunicación:** el servidor ahora separa, lote a lote, el tiempo del nodo más lento
-  (cómputo) del resto (enviar, esperar y agregar). En local, con 3 nodos, es ~15 %; en una red
-  real o en la nube sube. Por eso un lote más grande (`BATCH=256`) mejora la eficiencia
+  (cómputo) del resto (enviar, esperar y agregar). Con 3 laptops por internet fue entre el 66 % y
+  el 97 % del tiempo (informe, sección 4.2; `results/sesion_3laptops/distribuido.csv`). Python es
+  la excepción: como calcula más lento, la red pesa menos en su tiempo total. Por eso un lote más grande (`BATCH=256`) mejora la eficiencia
   distribuida.
 - **Clúster mixto (Caso 3):** es más lento que solo Go o solo Java, porque Python va unas 10 veces
   más lento. El reparto proporcional lo compensa en parte, pero cada lote espera al más lento.

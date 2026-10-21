@@ -374,8 +374,8 @@ public final class Charts {
         List<Map<String, String>> load = readCsv(new File(dir, "carga.csv"));
         System.out.println("Graficas generadas:");
 
-        // 1) Matriz de 12 casos: tiempo por escenario y lenguaje (se toma la última corrida de cada
-        //    combinación; en los escenarios distribuidos, la de más máquinas).
+        // 1) Matriz de 12 casos: tiempo por escenario y lenguaje (se toma la mediana de las corridas
+        //    de cada combinación; en los escenarios distribuidos, las de más máquinas).
         List<String> cats = new ArrayList<String>();
         cats.add("secuencial");
         cats.add("paralelo");

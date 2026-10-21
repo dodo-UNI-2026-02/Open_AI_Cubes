@@ -30,10 +30,6 @@ public final class Cnn {
         this.ex = ex;
     }
 
-    public int threads() {
-        return ex.threads();
-    }
-
     /** Convierte una imagen cruda (planos R, G, B de 1024 bytes) a floats en [-1, 1]. */
     public static float[] normalize(byte[] raw, int off) {
         float[] x = new float[IN_SIZE];

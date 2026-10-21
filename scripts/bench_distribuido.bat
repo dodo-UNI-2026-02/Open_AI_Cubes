@@ -4,12 +4,16 @@ rem "1 2 3" = cuantos nodos usar (uno por maquina mientras alcancen); "all" = cl
 rem Opcionales: set REPS=3 (repeticiones, se usa la mediana); red lenta o nube: set BATCH=256 (el mismo en bench_local.bat)
 cd /d "%~dp0\.."
 set HOST=%1
+if "%HOST%"=="" set HOST=127.0.0.1
 set LABEL=%2
+if "%LABEL%"=="" set LABEL=distribuido
+set MAQ=%~3
+if "%MAQ%"=="" set MAQ=1 2 3
 set IMG=%4
 if "%IMG%"=="" set IMG=1024
 if "%BATCH%"=="" set BATCH=64
 if "%REPS%"=="" set REPS=3
-for /l %%R in (1,1,%REPS%) do for %%M in (%~3) do for %%L in (java python go all) do (
+for /l %%R in (1,1,%REPS%) do for %%M in (%MAQ%) do for %%L in (java python go all) do (
   if not "%%L%%M"=="all1" (
     echo == [rep %%R/%REPS%] %LABEL% ^| nodos=%%L ^| maquinas=%%M
     java -cp out cubes.client.AdminClient --host %HOST% entrenar --images %IMG% --epochs 1 --batch %BATCH% --langs %%L --max-nodes %%M --label %LABEL%

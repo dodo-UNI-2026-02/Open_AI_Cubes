@@ -68,6 +68,14 @@ public final class JavaNode {
 
     private void session() throws IOException {
         Socket s = new Socket(host, port);
+        try {
+            session(s);
+        } finally {
+            s.close();
+        }
+    }
+
+    private void session(Socket s) throws IOException {
         s.setTcpNoDelay(true);
         DataInputStream in = new DataInputStream(new BufferedInputStream(s.getInputStream(), 1 << 16));
         out = new DataOutputStream(new BufferedOutputStream(s.getOutputStream(), 1 << 16));
@@ -82,7 +90,6 @@ public final class JavaNode {
                 .i32(threads).str(hostname).toBytes());
         Frame ok = Frame.read(in);
         if (ok.type != Msg.REGISTER_OK) {
-            s.close();
             throw new IOException("registro rechazado");
         }
         int nodeId = ok.reader().i32();
@@ -102,17 +109,18 @@ public final class JavaNode {
         hb.setDaemon(true);
         hb.start();
 
-        try {
-            while (true) {
-                Frame f = Frame.read(in);
-                if (f.type == Msg.BYE) {
-                    System.out.println("El servidor cerro la sesion");
-                    break;
-                }
-                handle(f);
+        while (true) {
+            Frame f = Frame.read(in);
+            if (f.type == Msg.BYE) {
+                System.out.println("El servidor cerro la sesion");
+                break;
             }
-        } finally {
-            s.close();
+            try {
+                handle(f);
+            } catch (RuntimeException e) {
+                // Un mensaje mal formado no debe tumbar el nodo: se responde ERROR y se sigue atendiendo.
+                send(Msg.ERROR, f.requestId, new PayloadWriter().str(String.valueOf(e)).toBytes());
+            }
         }
     }
 
@@ -122,6 +130,10 @@ public final class JavaNode {
             case Msg.SET_WEIGHTS: {
                 int slot = r.u8();
                 int version = r.i32();
+                if (slot > 1) {
+                    send(Msg.ERROR, f.requestId, new PayloadWriter().str("slot").toBytes());
+                    return;
+                }
                 slots[slot] = Params.fromArray(r.floats());
                 versions[slot] = version;
                 return;

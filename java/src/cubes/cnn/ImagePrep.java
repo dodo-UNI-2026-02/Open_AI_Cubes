@@ -34,10 +34,9 @@ public final class ImagePrep {
     }
 
     public static byte[] toCifar(BufferedImage img) {
-        BufferedImage small = img;
-        if (img.getWidth() != 32 || img.getHeight() != 32) {
-            small = shrink(squareCrop(img), 32);
-        }
+        // Siempre se redibuja sobre fondo blanco, también si ya mide 32×32: así un PNG transparente
+        // queda igual sin importar su tamaño.
+        BufferedImage small = shrink(squareCrop(img), 32);
         byte[] out = new byte[Params.IN_SIZE];
         for (int y = 0; y < 32; y++) {
             for (int x = 0; x < 32; x++) {

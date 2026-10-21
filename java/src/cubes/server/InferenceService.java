@@ -30,7 +30,6 @@ public final class InferenceService implements NodeRegistry.Listener {
         public float confidence;
         public int nodeId;
         public String nodeLang;
-        public float[] probs;
     }
 
     static final class Request {
@@ -122,8 +121,11 @@ public final class InferenceService implements NodeRegistry.Listener {
                 return;
             }
             try {
-                ModelStore.Snapshot snap = models.snapshot();
+                ModelStore.Snapshot snap;
                 synchronized (node.servingLock) {
+                    // La foto del modelo se toma dentro del candado: así el otro hilo de este nodo
+                    // no puede reemplazar una versión nueva por una vieja.
+                    snap = models.snapshot();
                     if (node.servingVersion != snap.version) {
                         node.setWeights(Msg.SLOT_SERVING, snap.version, snap.params.data);
                         node.servingVersion = snap.version;
@@ -134,13 +136,7 @@ public final class InferenceService implements NodeRegistry.Listener {
                 for (Request r : batch) {
                     w.bytes(r.pixels, 0, r.pixels.length);
                 }
-                node.inflight.incrementAndGet();
-                Frame resp;
-                try {
-                    resp = node.request(Msg.INFER_TASK, w.toBytes()).get(60, TimeUnit.SECONDS);
-                } finally {
-                    node.inflight.decrementAndGet();
-                }
+                Frame resp = node.request(Msg.INFER_TASK, w.toBytes()).get(60, TimeUnit.SECONDS);
                 PayloadReader r = resp.reader();
                 if (resp.type == Msg.ERROR) {
                     String msg = r.str();
@@ -149,8 +145,13 @@ public final class InferenceService implements NodeRegistry.Listener {
                         synchronized (node.servingLock) {
                             node.servingVersion = -1;
                         }
+                        requeue(batch);
+                    } else {
+                        // Otro error no se arregla reintentando en el mismo nodo: se informa al cliente.
+                        for (Request q : batch) {
+                            q.result.completeExceptionally(new IllegalStateException("nodo " + node.id + ": " + msg));
+                        }
                     }
-                    requeue(batch);
                     continue;
                 }
                 int rn = r.i32();
@@ -164,7 +165,10 @@ public final class InferenceService implements NodeRegistry.Listener {
                     System.arraycopy(probs, i * k, p, 0, k);
                     batch.get(i).result.complete(toPrediction(p, node.id, node.lang));
                 }
-                served.addAndGet(rn);
+                served.addAndGet(Math.min(rn, n));
+                if (rn < n) {
+                    requeue(new ArrayList<Request>(batch.subList(rn, n)));
+                }
             } catch (Exception e) {
                 log.info("Fallo de inferencia en nodo " + node.id + " (" + e + "): se reasigna el lote");
                 requeue(batch);
@@ -177,7 +181,6 @@ public final class InferenceService implements NodeRegistry.Listener {
 
     private static Prediction toPrediction(float[] probs, int nodeId, String lang) {
         Prediction p = new Prediction();
-        p.probs = probs;
         p.classIndex = Cnn.argmax(probs);
         p.confidence = probs[p.classIndex];
         p.nodeId = nodeId;

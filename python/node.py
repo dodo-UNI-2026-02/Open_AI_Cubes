@@ -888,7 +888,7 @@ class ProcessEngine:
             c.send(("pesos", slot, blob))
 
     def _split(self, n):
-        parts = min(n, len(self.conns))
+        parts = max(1, min(n, len(self.conns)))
         return [(n * p // parts, n * (p + 1) // parts) for p in range(parts)]
 
     def _collect(self, count):
@@ -1022,7 +1022,8 @@ def bench(args):
     test_path = args.get("test")
     test = Dataset.load(test_path) if test_path and os.path.exists(test_path) else None
     threads = max(1, args.get_int("threads", 1))
-    images = min(args.get_int("images", train.size), train.size)
+    v = args.get_int("images", 0)
+    images = train.size if v <= 0 else min(v, train.size)  # 0 = todas, igual que el nodo Go
     epochs = args.get_int("epochs", 1)
     batch = args.get_int("batch", 64)
     lr = args.get_float("lr", 0.01)

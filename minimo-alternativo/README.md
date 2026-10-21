@@ -7,12 +7,12 @@
 
 **Curso:** Programación Concurrente y Distribuida (CC4P1) · UNI 2026-2 · Parcial
 
-La misma idea que la versión principal, en 6 archivos (más `graficas.py`, que no es parte del sistema). Hay 1 servidor Java y nodos de cómputo en Java, Go y Python, conectados por sockets TCP con un protocolo binario propio y sin librerías externas. La CNN, la arquitectura y el formato de los pesos son los mismos, así que usa `../data/model.bin` (82,3 % de acierto) sin cambios.
+La misma idea que la versión principal, en 6 archivos (más `graficas.py`, que no es parte del sistema). Hay 1 servidor Java y nodos de cómputo en Java, Go y Python, conectados por sockets TCP con un protocolo binario propio y sin librerías externas. La CNN, la arquitectura y el formato de los pesos son los mismos, así que usa `../data/model.bin` (82,3 % de acierto) sin cambios; si se entrena aquí con `guardar`, el resultado va a `../data/model_minimo.bin`.
 
 | Archivo | Líneas | Qué hace |
 |---|---|---|
 | `Cnn.java` | 405 | La CNN: convolución, pooling y MLP como *micro chunks* repartidos entre hilos, con una barrera por capa. Entrenamiento local (secuencial y paralelo) y prueba del modelo |
-| `Servidor.java` | 343 | Recibe a nodos (puerto 6000) y clientes (puerto 5000). Pone las consultas en una cola compartida, reparte lotes a los nodos, entrena de forma distribuida y reasigna el trabajo si cae un nodo |
+| `Servidor.java` | 347 | Recibe a nodos (puerto 6000) y clientes (puerto 5000). Pone las consultas en una cola compartida, reparte lotes a los nodos, entrena de forma distribuida y reasigna el trabajo si cae un nodo |
 | `Nodo.java` | 60 | Nodo Java |
 | `nodo.go` | 374 | Nodo Go: misma CNN, con goroutines |
 | `nodo.py` | 236 | Nodo Python: misma CNN, con procesos (el GIL impide calcular en paralelo con hilos) |
@@ -46,7 +46,7 @@ java -cp out Cliente 127.0.0.1         # chat
 
 Comandos en la consola del servidor:
 - `estado` muestra los nodos conectados y su velocidad.
-- `entrenar <imágenes> <épocas> [java,go,python] [maxNodos] [guardar]` entrena de forma distribuida desde pesos iniciales fijos, para que los escenarios sean comparables. Con `guardar`, publica el modelo nuevo para el chat.
+- `entrenar <imágenes> <épocas> [java,go,python] [maxNodos] [guardar]` entrena de forma distribuida desde pesos iniciales fijos, para que los escenarios sean comparables. Con `guardar`, publica el modelo nuevo para el chat y lo guarda en `../data/model_minimo.bin` (no toca `model.bin` de la versión principal; al arrancar, el servidor usa `model_minimo.bin` si existe).
 
 Para entrenar se necesita `../data/train.bin`, que viene en `datos_train.zip` en la sección *Releases* del repositorio.
 

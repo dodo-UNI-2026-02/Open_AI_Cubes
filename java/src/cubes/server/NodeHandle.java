@@ -38,7 +38,6 @@ public final class NodeHandle {
     private final Map<Integer, CompletableFuture<Frame>> pending = new ConcurrentHashMap<Integer, CompletableFuture<Frame>>();
     private final AtomicInteger nextRequest = new AtomicInteger(1);
 
-    final AtomicInteger inflight = new AtomicInteger();
     final AtomicLong imagesTrained = new AtomicLong();
     final AtomicLong imagesInferred = new AtomicLong();
     volatile long lastSeen = System.currentTimeMillis();

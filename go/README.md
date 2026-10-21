@@ -75,4 +75,5 @@ misma fila CSV (`lenguaje=go`, `maquinas=1`).
 ./nodo-go -h
 ```
 
-Los flags aceptan `-flag` o `--flag`, con el valor separado por espacio o por `=`.
+Los flags aceptan `-flag` o `--flag`, con el valor separado por espacio o por `=`. Los booleanos
+(`--bench`, `--quiet`) van solos o como `--bench=true`.

@@ -178,6 +178,10 @@ public final class DistributedTrainer {
     }
 
     public synchronized Result run(Config cfg, Progress progress) throws Exception {
+        if (cfg.images < 1 || cfg.epochs < 1 || cfg.batch < 1) {
+            // Sin esta validación, 0 imágenes o 0 épocas publicarían al chat los pesos sin entrenar.
+            throw new IllegalArgumentException("imagenes, epocas y lote deben ser mayores que 0");
+        }
         List<NodeHandle> nodes = registry.select(cfg.langs, cfg.maxNodes);
         if (nodes.isEmpty()) {
             throw new IllegalStateException("No hay nodos conectados que cumplan el filtro '" + cfg.langs + "'");
@@ -376,6 +380,9 @@ public final class DistributedTrainer {
                 live.add(h);
             }
         }
+        if (live.isEmpty()) {
+            throw new IllegalStateException("no quedan nodos vivos para evaluar");
+        }
         int version = versions.incrementAndGet();
         int[] counts = split(total, live);
         List<CompletableFuture<Frame>> futures = new ArrayList<CompletableFuture<Frame>>();
@@ -405,6 +412,9 @@ public final class DistributedTrainer {
         int ok = 0;
         for (int i = 0; i < futures.size(); i++) {
             Frame f = futures.get(i).get();
+            if (f.type == Msg.ERROR) {
+                throw new IllegalStateException("nodo: " + f.reader().str());
+            }
             PayloadReader r = f.reader();
             int n = r.i32();
             int k = r.i32();
@@ -511,6 +521,10 @@ public final class DistributedTrainer {
                     w.bytes(train.raw, train.pixelOffset(i), cubes.cnn.Params.IN_SIZE);
                 }
                 Frame fi = h.request(Msg.INFER_TASK, w.toBytes()).get(120, TimeUnit.SECONDS);
+                if (fi.type == Msg.ERROR) {
+                    sb.append("nodo ").append(h.id).append(" ERROR: ").append(fi.reader().str()).append('\n');
+                    continue;
+                }
                 PayloadReader ri = fi.reader();
                 int rn = ri.i32();
                 int k = ri.i32();

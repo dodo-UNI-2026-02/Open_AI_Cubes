@@ -121,11 +121,7 @@ func (f *frameBuilder) grow(n int) []byte {
 	return f.buf[l : l+n]
 }
 
-func (f *frameBuilder) u8(v byte) { f.grow(1)[0] = v }
-
 func (f *frameBuilder) i32(v int32) { binary.BigEndian.PutUint32(f.grow(4), uint32(v)) }
-
-func (f *frameBuilder) f32(v float32) { binary.BigEndian.PutUint32(f.grow(4), math.Float32bits(v)) }
 
 func (f *frameBuilder) f64(v float64) { binary.BigEndian.PutUint64(f.grow(8), math.Float64bits(v)) }
 
