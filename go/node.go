@@ -75,6 +75,7 @@ func runNode(cfg nodeConfig) {
 	// Ctrl+C (o SIGTERM): enviar BYE si hay conexión y salir.
 	var curMu sync.Mutex
 	var cur *session
+	var exiting int32 // 1 cuando se está saliendo por Ctrl+C: el bucle no debe anunciar un reintento
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, os.Interrupt, syscall.SIGTERM)
 	go func() {
@@ -82,6 +83,7 @@ func runNode(cfg nodeConfig) {
 		curMu.Lock()
 		s := cur
 		curMu.Unlock()
+		atomic.StoreInt32(&exiting, 1)
 		if s != nil {
 			fmt.Println("\nCtrl+C: enviando BYE al servidor")
 			sent := make(chan struct{})
@@ -116,6 +118,9 @@ func runNode(cfg nodeConfig) {
 		curMu.Lock()
 		cur = nil
 		curMu.Unlock()
+		if atomic.LoadInt32(&exiting) == 1 {
+			select {} // la goroutine de la señal termina el proceso
+		}
 		fmt.Printf("Conexion terminada: %v; reintento en %v\n", err, cfg.retry)
 		time.Sleep(cfg.retry)
 	}

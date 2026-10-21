@@ -61,7 +61,6 @@ const (
 // Params contiene el vector de pesos y el número de clases K.
 type Params struct {
 	Classes int
-	OB4     int // desplazamiento de b4 (depende de K)
 	Data    []float32
 }
 
@@ -85,7 +84,7 @@ func ParamsFromSlice(values []float32) (*Params, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Params{Classes: k, OB4: OW4 + FC1*k, Data: values}, nil
+	return &Params{Classes: k, Data: values}, nil
 }
 
 // LoadParams lee un archivo de pesos OCW1 (big-endian).

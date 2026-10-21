@@ -45,10 +45,6 @@ public final class ChunkExecutor implements AutoCloseable {
         }
     }
 
-    public int threads() {
-        return threads;
-    }
-
     /** Divide [0, n) en hasta H micro chunks contiguos y espera a todos (barrera). */
     public void forRange(int n, final RangeTask task) {
         if (n <= 0) {

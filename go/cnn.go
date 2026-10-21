@@ -30,10 +30,6 @@ func NewCnn(ex *ChunkExecutor) *Cnn {
 	return &Cnn{ex: ex}
 }
 
-func (c *Cnn) Threads() int {
-	return c.ex.Threads()
-}
-
 // acts guarda las activaciones intermedias de un forward, necesarias para el backward.
 type acts struct {
 	x, a1, p1, a2, p2, h, probs [][]float32

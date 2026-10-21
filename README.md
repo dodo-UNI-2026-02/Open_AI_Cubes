@@ -25,9 +25,6 @@ laptops.
 
 | Documento | Para qué |
 |---|---|
-| `docs/informe/Informe_OpenAICubes.pdf` | Informe |
-| `docs/informe/Presentacion_OpenAICubes.pdf` | Presentación |
-| `docs/informe/Notas_exposicion.pdf` | Notas para la exposición |
 | [docs/PRUEBAS_EN_VIVO.md](docs/PRUEBAS_EN_VIVO.md) | Qué pueden pedir en la exposición y qué tener listo |
 | [docs/NUBE_GCP.md](docs/NUBE_GCP.md) | Servidor en Google Cloud (punto opcional del enunciado). Al inicio están los comandos del día a día: `tmux attach -t oac` para volver a la consola del servidor y `Ctrl+B` y luego `D` para salir dejándolo trabajando |
 | [docs/CNN_SPEC.md](docs/CNN_SPEC.md) | La CNN: capas, pesos y fórmulas |
@@ -56,9 +53,9 @@ laptops.
 | `scripts/` | Scripts `.bat` (Windows) y `.sh` (Linux/macOS) |
 | `data/` | `test.bin`, `classes.txt` y pesos (`model.bin` del chat, `init_weights.bin` para las mediciones, `ref.bin` para verificar los nodos) |
 | `imagenes_para_probar/` | Fotos para probar el chat |
-| `results/ejemplo_vm/` | CSV de una corrida de prueba anterior (ver "Evaluación") |
+| `results/sesion_3laptops/` | Mediciones con las 3 laptops del equipo: CSV, registros de cada ronda y gráficas (ver "Evaluación") |
 | `docs/` | Documentos de la tabla de arriba |
-| `minimo-alternativo/` | **Plan B:** la misma idea en 6 archivos (~1 500 líneas en vez de ~9 000), con su propio protocolo; ver su [README](minimo-alternativo/README.md). No se mezcla con esta versión |
+| `minimo-alternativo/` | **Plan B:** la misma idea en 6 archivos (~1 700 líneas en vez de ~9 400), con su propio protocolo; ver su [README](minimo-alternativo/README.md). No se mezcla con esta versión |
 
 ## Requisitos
 
@@ -143,22 +140,24 @@ Cómo se mide:
   `costo_comunicacion.png`. La columna `maquinas` cuenta los nodos usados, y `hosts`, cuántas
   máquinas distintas los aportaron.
 - Gráficas: `matriz_tiempos`, `escalabilidad_tiempo`, `escalabilidad_speedup`,
-  `escalabilidad_eficiencia`, `costo_comunicacion`, `carga_latencia` y `carga_throughput`.
+  `escalabilidad_speedup_computo`, `escalabilidad_eficiencia`, `costo_comunicacion`,
+  `carga_latencia` y `carga_throughput`.
 - **Laptops:** medir enchufadas y con el plan de energía "Alto rendimiento". En procesadores con
   núcleos rápidos y lentos (Intel de 12.ª/13.ª gen.), el secuencial puede caer en un núcleo lento
   y dar un speedup falso; ver [PRUEBAS_EN_VIVO.md](docs/PRUEBAS_EN_VIVO.md), sección 5.
 
-`results/ejemplo_vm/` trae los CSV de una corrida de prueba anterior, con varios nodos en una sola
-VM de 4 núcleos (de ahí la etiqueta "6 nodos mixtos" de `carga.csv`). La fila `prueba10` es una
-corrida larga de esa misma época. Sirven de ejemplo del formato; las mediciones del informe se
-hacen con las laptops del equipo. Sus gráficas se regeneran con
-`java -cp out cubes.tools.Charts results/ejemplo_vm`.
+**Mediciones del informe:** `results/sesion_3laptops/`, con el servidor en Google Cloud y las 3
+laptops del equipo por internet. Se usaron 512 imágenes (`bench_local 512` y
+`bench_distribuido S ... "1 2 3" 512`), 3 repeticiones en local y 2 en distribuido, y el escenario
+local se fijó a los núcleos de rendimiento con `start /affinity` (de ahí "afinidad 0x3" en
+`local.log`). Trae los CSV, los registros de cada ronda, las salidas de `estado` y las gráficas,
+que se regeneran con `java -cp out cubes.tools.Charts results/sesion_3laptops`.
 
 ## Empaquetar
 
 ```bash
-scripts/empaquetar.sh entrega   # dist/OpenAICubes_entrega.zip: fuentes, scripts, pesos, docs y PDF (para Univirtual)
-scripts/empaquetar.sh kit       # dist/OpenAICubes_kit.zip: ya compilado (Java 8 + nodo Go Windows/Linux) para cada laptop
+PDFS="ruta/*.pdf" scripts/empaquetar.sh entrega   # dist/OpenAICubes_entrega.zip: fuentes, scripts, pesos, docs y los PDF indicados (para Univirtual)
+scripts/empaquetar.sh kit                         # dist/OpenAICubes_kit.zip: ya compilado (Java 8 + nodo Go Windows/Linux) para cada laptop
 ```
 
 En Windows se corre desde Git Bash.
@@ -167,8 +166,8 @@ En Windows se corre desde Git Bash.
 
 `data/train.bin` (61 MB) va aparte, en `datos_train.zip`, por su tamaño. Se descarga desde la
 sección *Releases* del repositorio y se descomprime en la raíz del proyecto (el zip ya trae la
-carpeta `data/`). Solo hace falta para entrenar y para los benchmarks; el chat funciona sin él,
-con `data/model.bin`.
+carpeta `data/`). Solo hace falta para entrenar, para los benchmarks y para la prueba cruzada (`crosscheck`, que
+también corre `demo_local`); el chat funciona sin él, con `data/model.bin`.
 
 Se usan 4 clases de CIFAR-10 (avión, automóvil, gato, barco): 20 000 imágenes de entrenamiento y
 4 000 de prueba, de 32×32 píxeles. Para regenerarlo, o para agregar clases propias (por ejemplo
@@ -184,8 +183,8 @@ El modelo entregado (`data/model.bin`) acierta 3 292 de las 4 000 imágenes de p
 
 - **Local:** `java -cp out cubes.bench.LocalTrain --threads 4 --epochs 8 --save data/model.bin`.
   Tarda unos 5 minutos con 4 núcleos.
-- **En el clúster**, con todos los nodos conectados: `scripts\entrenar_cluster.bat S [epocas] [lenguajes]`.
-  - Por defecto: 8 épocas y todos los nodos. Con `java,go` quedan fuera los nodos Python, que son
+- **En el clúster**, con todos los nodos conectados: `scripts\entrenar_cluster.bat S [epocas] ["lenguajes"]`.
+  - Por defecto: 8 épocas y todos los nodos. Con `"java,go"` (en Windows, entre comillas) quedan fuera los nodos Python, que son
     más lentos.
   - El servidor publica el modelo para el chat sin reiniciar y lo guarda en `data/model.bin`; el
     anterior queda en `data/model_anterior.bin`.

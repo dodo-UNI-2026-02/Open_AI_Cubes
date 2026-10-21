@@ -1,10 +1,11 @@
 @echo off
-rem Filas secuencial y paralelo de la matriz en ESTA maquina. Uso: bench_local.bat [imagenes]
+rem Filas secuencial y paralelo de la matriz en ESTA maquina. Uso: bench_local.bat [imagenes] [hilos_paralelo]
 rem Opcionales: set REPS=3 (repeticiones, se usa la mediana), set THREADS=1 2 4 8 (barrido de hilos), set BATCH=64
 cd /d "%~dp0\.."
 set IMG=%1
 if "%IMG%"=="" set IMG=1024
-set H=%NUMBER_OF_PROCESSORS%
+set H=%2
+if "%H%"=="" set H=%NUMBER_OF_PROCESSORS%
 if "%BATCH%"=="" set BATCH=64
 if "%REPS%"=="" set REPS=3
 if "%THREADS%"=="" set THREADS=1 %H%

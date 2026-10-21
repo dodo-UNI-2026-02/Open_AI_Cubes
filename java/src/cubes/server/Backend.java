@@ -65,12 +65,13 @@ public final class Backend {
         latencyMsSum.addAndGet(ms);
         s.history.add("Yo: Identificar");
         s.history.add("Bot: " + answer);
-        String line = fmt.format(new Date()) + ";" + s.user + ";" + String.format("%04d", s.idClientChat) + ";Identificar;"
-                + answer + ";nodo " + nodeId + " (" + lang + ");" + ms + " ms\n";
         synchronized (this) {
             if (historyFile == null) {
                 return;
             }
+            // SimpleDateFormat no es seguro entre hilos: se usa dentro del bloque sincronizado.
+            String line = fmt.format(new Date()) + ";" + s.user + ";" + String.format("%04d", s.idClientChat) + ";Identificar;"
+                    + answer + ";nodo " + nodeId + " (" + lang + ");" + ms + " ms\n";
             try {
                 Writer w = new OutputStreamWriter(new FileOutputStream(historyFile, true), StandardCharsets.UTF_8);
                 try {

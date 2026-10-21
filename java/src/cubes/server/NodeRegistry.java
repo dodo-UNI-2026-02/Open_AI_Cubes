@@ -82,6 +82,8 @@ public final class NodeRegistry {
     private void handshake(Socket s) {
         try {
             s.setTcpNoDelay(true);
+            // Quien se conecta y no se registra en 10 s se descarta (no ocupa un hilo para siempre).
+            s.setSoTimeout(10000);
             DataInputStream in = NodeHandle.inputOf(s);
             DataOutputStream out = NodeHandle.outputOf(s);
             Frame f = Frame.read(in);
@@ -95,6 +97,7 @@ public final class NodeRegistry {
             int cores = r.i32();
             int threads = r.i32();
             String host = r.str();
+            s.setSoTimeout(0);
             NodeHandle node = new NodeHandle(nextId.getAndIncrement(), s, in, out, lang, cores, threads, host);
             node.send(Msg.REGISTER_OK, f.requestId, new PayloadWriter().i32(node.id).toBytes());
             nodes.add(node);
@@ -103,8 +106,8 @@ public final class NodeRegistry {
                 l.nodeAdded(node);
             }
             node.readLoop(this);
-        } catch (IOException e) {
-            log.info("Fallo en conexion de nodo: " + e.getMessage());
+        } catch (IOException | RuntimeException e) {
+            log.info("Fallo en conexion de nodo: " + e);
             try {
                 s.close();
             } catch (IOException ignored) {

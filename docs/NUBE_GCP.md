@@ -28,7 +28,11 @@ la terminal en el navegador. No hay archivos de claves que manejar.
 
 ## Comandos rápidos (día a día)
 
-Servidor del equipo: VM `oac-servidor` en `southamerica-west1-a`, IP fija **34.176.215.27**.
+Servidor del equipo: VM `oac-servidor` en `southamerica-west1-a` (Santiago), IP fija **34.176.215.27**.
+Santiago tiene menos latencia desde Lima, pero **no entra en Always Free**: mientras está encendida
+cobra la VM, y la IP fija cobra siempre. Las secciones 1 y 7 describen la alternativa gratuita en
+`us-east1`; para nuestra VM, en los comandos `gcloud` va `--zone=southamerica-west1-a`. La VM del
+equipo es `e2-micro` con Ubuntu 24.04 LTS (la guía de abajo usa 22.04; cualquiera de las dos sirve).
 
 | Qué | Dónde | Comando |
 |---|---|---|
@@ -74,7 +78,8 @@ rápidas.
 > **Alerta de gasto (obligatorio con cuenta de pago):** ☰ → *Facturación → Presupuestos y
 > alertas → Crear presupuesto*, de S/ 10 (o 3 USD) con aviso al 50 % y al 100 %.
 
-Con Always Free, la VM y el disco no cuestan. Lo único que puede cobrar es la **IP pública**
+Si la VM se crea en una región de Always Free (sección 1), la VM y el disco no cuestan; la nuestra
+está en Santiago y sí cobra mientras está encendida. Lo único que puede cobrar es la **IP pública**
 (Google cobra las IPv4 externas, unos 0,12 USD al día encendida) y el tráfico si pasa de 1 GB al
 mes. Por eso se **detiene** la VM cuando no se usa, y el entrenamiento se hace en red local.
 
@@ -111,7 +116,7 @@ cambia aunque se detenga la VM.
 | Protocolos y puertos | *Protocolos y puertos especificados* → TCP: `5000,6000` |
 
 - Cada integrante ve su IP en https://api.ipify.org desde su casa. El día de la exposición se
-  agrega la de la red de la UNI.
+  agrega `0.0.0.0/0` y se quita al terminar (ver README, "Día de la presentación").
 - Las IP de casa pueden cambiar; si un nodo de repente no conecta, revisar esta regla primero.
 - Para una prueba corta se puede usar `0.0.0.0/0` (cualquiera) y quitarlo después. El servidor no
   tiene cifrado, así que no conviene dejarlo abierto.
@@ -180,6 +185,7 @@ gcloud compute instances create oac-servidor --zone=us-east1-b \
 gcloud compute firewall-rules create permitir-open-ai-cubes --direction=INGRESS \
   --allow=tcp:5000,tcp:6000 --target-tags=oac-servidor \
   --source-ranges=<IP_1>/32,<IP_2>/32,<IP_3>/32
+# Nuestra VM está en Santiago: en los comandos que siguen, usar --zone=southamerica-west1-a
 gcloud compute instances describe oac-servidor --zone=us-east1-b \
   --format="get(networkInterfaces[0].accessConfigs[0].natIP)"
 gcloud compute ssh oac-servidor --zone=us-east1-b      # entrar por SSH
@@ -196,7 +202,7 @@ gcloud compute instances stop oac-servidor --zone=us-east1-b
    scripts/graficas.sh
    ```
    La diferencia de latencia p50 en `carga_latencia.png` es el viaje de ida y vuelta Lima ↔
-   Carolina del Sur. En `carga_throughput.png` se ve dónde se satura el servidor chico de la nube.
+   Santiago (Carolina del Sur si se usa la opción gratuita de `us-east1`). En `carga_throughput.png` se ve dónde se satura el servidor chico de la nube.
 2. **Entrenamiento:** por internet conviene `BATCH=256`, porque cada lote manda ~1 MB de pesos a
    cada laptop. Se compara en `costo_comunicacion.png`. Lo recomendado es entrenar en red local y
    dejar la nube para el chat y la carga.
@@ -211,6 +217,6 @@ evidencia de que el servidor está en la nube.
 | "Compute Engine API no habilitada" | Paso 0.4: habilitarla y esperar 1 a 2 minutos |
 | No deja crear la VM por cuota o región | Probar otra zona de `us-east1` (`-c`, `-d`) o `us-central1` |
 | El nodo no conecta a 6000 | Falta la IP de esa laptop en la regla del paso 2, la etiqueta `oac-servidor` no está en la VM, o la red bloquea el puerto (probar con el hotspot del celular) |
-| La red de la UNI bloquea 5000/6000 | Hotspot del celular, o en la VM `sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 5000` y `... --dport 80 ... --to-port 6000`, abrir `tcp:80,443` en la regla y conectar con `--port 443` (clientes) y `--port 80` (nodos) |
+| La red de la UNI bloquea 5000/6000 | Hotspot del celular, o en la VM `sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 5000` y `... --dport 80 ... --to-port 6000`, abrir `tcp:80,443` en la regla y conectar con `--port 443` (clientes) y `--port 80` (nodos). Los scripts `nodo_*` fijan el puerto 6000, así que el nodo se lanza directo (por ejemplo `java -cp out cubes.node.JavaNode --server <IP> --port 80`) |
 | El botón SSH no conecta | Esperar a que la VM termine de arrancar; revisar que exista la regla `default-allow-ssh` |
 | `OutOfMemoryError` o servidor lento | Usar `JAVA_MEM=-Xmx600m`, confirmar el swap con `free -h`, o, si hace falta, `e2-small` (cobra unos 0,02 USD/h; con la VM detenida: *Editar → Tipo de máquina*) |

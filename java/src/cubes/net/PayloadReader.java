@@ -55,8 +55,4 @@ public final class PayloadReader {
         bb.get(b);
         return b;
     }
-
-    public int remaining() {
-        return bb.remaining();
-    }
 }
