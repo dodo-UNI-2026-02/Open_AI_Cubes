@@ -25,9 +25,6 @@ laptops.
 
 | Documento | Para qué |
 |---|---|
-| `docs/informe/Informe_OpenAICubes.pdf` | Informe final (en inglés) |
-| `docs/informe/Presentacion_OpenAICubes.pdf` | Presentación |
-| `docs/informe/Notas_exposicion.pdf` | Notas para la exposición |
 | [docs/PRUEBAS_EN_VIVO.md](docs/PRUEBAS_EN_VIVO.md) | Qué pueden pedir en la exposición y qué tener listo |
 | [docs/NUBE_GCP.md](docs/NUBE_GCP.md) | Servidor en Google Cloud (punto opcional del enunciado). Al inicio están los comandos del día a día: `tmux attach -t oac` para volver a la consola del servidor y `Ctrl+B` y luego `D` para salir dejándolo trabajando |
 | [docs/CNN_SPEC.md](docs/CNN_SPEC.md) | La CNN: capas, pesos y fórmulas |
@@ -159,8 +156,8 @@ que se regeneran con `java -cp out cubes.tools.Charts results/sesion_3laptops`.
 ## Empaquetar
 
 ```bash
-scripts/empaquetar.sh entrega   # dist/OpenAICubes_entrega.zip: fuentes, scripts, pesos, docs y PDF (para Univirtual)
-scripts/empaquetar.sh kit       # dist/OpenAICubes_kit.zip: ya compilado (Java 8 + nodo Go Windows/Linux) para cada laptop
+PDFS="ruta/*.pdf" scripts/empaquetar.sh entrega   # dist/OpenAICubes_entrega.zip: fuentes, scripts, pesos, docs y los PDF indicados (para Univirtual)
+scripts/empaquetar.sh kit                         # dist/OpenAICubes_kit.zip: ya compilado (Java 8 + nodo Go Windows/Linux) para cada laptop
 ```
 
 En Windows se corre desde Git Bash.
