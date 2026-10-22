@@ -20,6 +20,9 @@ python3 python/node.py --bench --train data/train.bin --init data/init_weights.b
 python3 python/node.py --server 127.0.0.1 --port 6000 --threads 4 [--verbose] [--once]
 ```
 
+`--help` muestra los modos. Las opciones van como `--clave valor` o `--clave=valor`; una opción
+desconocida detiene el programa con un aviso.
+
 | Opción | Por defecto | Significado |
 |---|---|---|
 | `--threads H` | núcleos (red), 1 (bench/verify) | procesos de cálculo (con H > 1 se usan H procesos, ver abajo) |
@@ -42,7 +45,8 @@ del CSV coinciden con las de Java para el mismo entrenamiento.
 - `SET_WEIGHTS` guarda los pesos por slot junto con su versión. Si una tarea trae otra
   versión responde `ERROR "version"` con el id de la tarea.
 - Si el servidor no está o se cae la conexión (también tras un `BYE` del servidor),
-  reintenta cada 3 s. Los pesos guardados se borran al reconectar.
+  reintenta cada 3 s. Al reconectar se olvidan las versiones de los pesos: hasta recibir un
+  `SET_WEIGHTS` nuevo, toda tarea recibe `ERROR "version"`.
 - Ctrl+C (o `kill`) envía `BYE` y termina.
 
 ## Cómo se logra la velocidad sin numpy

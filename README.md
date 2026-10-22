@@ -148,8 +148,8 @@ Cómo se mide:
 **Mediciones del informe:** `results/sesion_3laptops/`, con el servidor en Google Cloud y las 3
 laptops del equipo por internet. Se usaron 512 imágenes (`bench_local 512` y
 `bench_distribuido S ... "1 2 3" 512`), 3 repeticiones en local y 2 en distribuido, y el escenario
-local se fijó a los núcleos de rendimiento con `start /affinity` (de ahí "afinidad 0x3" en
-`local.log`). Trae los CSV, los registros de cada ronda, las salidas de `estado` y las gráficas,
+local se fijó a los núcleos de rendimiento con `start /affinity` (en `local.log`, "afinidad 0x3"
+en el secuencial y "afinidad 0x55" en el paralelo). Trae los CSV, los registros de cada ronda, las salidas de `estado` y las gráficas,
 que se regeneran con `java -cp out cubes.tools.Charts results/sesion_3laptops`.
 
 ## Empaquetar
