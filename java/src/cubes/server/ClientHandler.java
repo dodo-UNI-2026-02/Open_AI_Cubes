@@ -24,7 +24,7 @@ final class ClientHandler implements Runnable {
     /** Máximo de imágenes en un IDENTIFY_BATCH (la cola de inferencia admite 20 000). */
     static final int MAX_BATCH_IMAGES = 5000;
 
-    private static final String NO_TRAIN = "el servidor no tiene data/train.bin: descomprima datos_train.zip dentro de data/ "
+    private static final String NO_TRAIN = "el servidor no tiene data/train.bin: descomprima datos_train.zip en la carpeta del proyecto "
             + "y reinicie el servidor (el chat funciona igual sin ese archivo)";
 
     private final Socket socket;

@@ -81,7 +81,7 @@ rápidas.
 Si la VM se crea en una región de Always Free (sección 1), la VM y el disco no cuestan; la nuestra
 está en Santiago y sí cobra mientras está encendida. Lo único que puede cobrar es la **IP pública**
 (Google cobra las IPv4 externas, unos 0,12 USD al día encendida) y el tráfico si pasa de 1 GB al
-mes. Por eso se **detiene** la VM cuando no se usa, y el entrenamiento se hace en red local.
+mes. Por eso se **detiene** la VM cuando no se usa.
 
 ## 1. Crear el servidor
 
@@ -192,20 +192,18 @@ gcloud compute ssh oac-servidor --zone=us-east1-b      # entrar por SSH
 gcloud compute instances stop oac-servidor --zone=us-east1-b
 ```
 
-## 8. Qué medir para el informe
+## 8. Qué se midió para el informe
 
-1. **Prueba de carga, red local vs nube.** Con las mismas 3 laptops, primero con el servidor en
-   una laptop y luego con el servidor en Google Cloud:
-   ```bash
-   scripts/carga.sh <IP_LAPTOP_SERVIDOR> "Red local 3 laptops" 10,50,100,200,400
-   scripts/carga.sh <IP>                 "Google Cloud 3 laptops" 10,50,100,200,400
-   scripts/graficas.sh
-   ```
-   La diferencia de latencia p50 en `carga_latencia.png` es el viaje de ida y vuelta Lima ↔
-   Santiago (Carolina del Sur si se usa la opción gratuita de `us-east1`). En `carga_throughput.png` se ve dónde se satura el servidor chico de la nube.
-2. **Entrenamiento:** por internet conviene `BATCH=256`, porque cada lote manda ~1 MB de pesos a
-   cada laptop. Se compara en `costo_comunicacion.png`. Lo recomendado es entrenar en red local y
-   dejar la nube para el chat y la carga.
+Todo con el servidor en esta VM de Santiago y las 3 laptops conectadas por internet
+(`results/sesion_3laptops/`):
+
+1. **Prueba de carga:** `scripts/carga.sh 34.176.215.27 "3 laptops - nube"`, de 10 a 800 clientes
+   con 20 peticiones cada uno. Llegó a 753 resp/s con 800 clientes y 0 errores en 31 200
+   consultas (`carga_latencia.png`, `carga_throughput.png`).
+2. **Entrenamiento distribuido:** `bench_distribuido` con 512 imágenes y lote 64. Cada lote manda
+   ~1 MB de pesos a cada laptop, así que la comunicación fue entre el 66 % y el 97 % del tiempo
+   (salvo Python, que calcula más lento); se ve en `costo_comunicacion.png`. Con `BATCH=256` la
+   red pesa menos.
 
 Para la exposición conviene tener capturas de la VM corriendo y de la regla de firewall, como
 evidencia de que el servidor está en la nube.
