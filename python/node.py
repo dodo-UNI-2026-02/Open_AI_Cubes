@@ -945,18 +945,30 @@ def create_engine(threads):
 # ============================================================================
 
 class Args:
+    KNOWN = {"batch", "bench", "csv", "epochs", "images", "init", "label", "lr", "momentum", "once",
+             "port", "save", "server", "test", "test-images", "threads", "train", "verbose", "verify"}
+
     def __init__(self, argv):
         self.values = {}
         i = 0
         while i < len(argv):
             a = argv[i]
-            if a.startswith("--"):
-                key = a[2:]
-                if i + 1 < len(argv) and not argv[i + 1].startswith("--"):
-                    self.values[key] = argv[i + 1]
-                    i += 1
-                else:
-                    self.values[key] = "true"
+            if a in ("-h", "--help"):
+                print(__doc__.split("La red y el vector")[0].strip())
+                sys.exit(0)
+            if not a.startswith("--"):
+                sys.exit("argumento inesperado: %s (use --help)" % a)
+            key = a[2:]
+            if "=" in key:
+                key, value = key.split("=", 1)
+                self.values[key] = value
+            elif i + 1 < len(argv) and not argv[i + 1].startswith("--"):
+                self.values[key] = argv[i + 1]
+                i += 1
+            else:
+                self.values[key] = "true"
+            if key not in self.KNOWN:
+                sys.exit("opción desconocida: --%s (use --help)" % key)
             i += 1
 
     def get(self, key, default=None):
@@ -1338,6 +1350,9 @@ class Node:
         try:
             if typ == SET_WEIGHTS:
                 slot, version, count = struct.unpack_from(">Bii", p, 0)
+                if slot > 1:
+                    self.send_error(rid, "slot")
+                    return
                 if len(p) != 9 + 4 * count:
                     raise ValueError("SET_WEIGHTS con longitud incorrecta")
                 classes = Params.classes_from_size(count)   # valida el tamaño

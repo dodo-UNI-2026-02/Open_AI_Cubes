@@ -19,3 +19,4 @@ for /l %%R in (1,1,%REPS%) do for %%M in (%MAQ%) do for %%L in (java python go a
     java -cp out cubes.client.AdminClient --host %HOST% entrenar --images %IMG% --epochs 1 --batch %BATCH% --langs %%L --max-nodes %%M --label %LABEL%
   )
 )
+echo Resultados en results\distribuido.csv (en la maquina del servidor)

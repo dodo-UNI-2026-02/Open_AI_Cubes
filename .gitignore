@@ -7,7 +7,9 @@ __pycache__/
 
 # Dataset de entrenamiento: se publica como Release (datos_train.zip)
 data/train.bin
-para_release/
+
+# Temporal de scripts\compilar.bat (se borra al terminar)
+fuentes.txt
 
 # Resultados de corridas nuevas (los del informe están en results/sesion_3laptops/)
 results/*.csv

@@ -8,3 +8,4 @@ javac --release 8 -Xlint:-options -encoding UTF-8 -d out @fuentes.txt 2>nul || j
 del fuentes.txt
 echo Java compilado en out\
 where go >nul 2>nul && (cd go && go build -o nodo-go.exe . && cd .. && echo Nodo Go compilado en go\nodo-go.exe)
+where go >nul 2>nul || echo AVISO: no se encontro go; el nodo Go no se compilo

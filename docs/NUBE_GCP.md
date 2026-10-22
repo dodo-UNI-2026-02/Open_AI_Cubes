@@ -201,8 +201,8 @@ Todo con el servidor en esta VM de Santiago y las 3 laptops conectadas por inter
    con 20 peticiones cada uno. Llegó a 753 resp/s con 800 clientes y 0 errores en 31 200
    consultas (`carga_latencia.png`, `carga_throughput.png`).
 2. **Entrenamiento distribuido:** `bench_distribuido` con 512 imágenes y lote 64. Cada lote manda
-   ~1 MB de pesos a cada laptop, así que la comunicación fue entre el 66 % y el 97 % del tiempo
-   (salvo Python, que calcula más lento); se ve en `costo_comunicacion.png`. Con `BATCH=256` la
+   ~1 MB de pesos a cada laptop, así que con las 3 laptops la comunicación fue entre el 66 % (Python,
+   que calcula más lento) y el 97 % del tiempo; se ve en `costo_comunicacion.png`. Con `BATCH=256` la
    red pesa menos.
 
 Para la exposición conviene tener capturas de la VM corriendo y de la regla de firewall, como

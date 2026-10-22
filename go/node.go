@@ -278,6 +278,10 @@ func (s *session) handleSetWeights(fr Frame) {
 	r := &payloadReader{buf: fr.Payload}
 	slot := r.u8()
 	version := r.i32()
+	if slot > 1 {
+		s.sendError(fr.ID, "slot")
+		return
+	}
 	values := r.f32s()
 	if err := r.end(); err != nil {
 		s.badPayload(fr, err)

@@ -111,7 +111,13 @@ final class ClientHandler implements Runnable {
                 int format = r.u8();
                 int len = r.i32();
                 byte[] data = r.bytes(len);
-                byte[] pixels = format == Msg.FORMAT_RAW ? data : ImagePrep.fromEncoded(data);
+                byte[] pixels;
+                try {
+                    pixels = format == Msg.FORMAT_RAW ? data : ImagePrep.fromEncoded(data);
+                } catch (IOException e) {
+                    error(f.requestId, "imagen invalida: " + e.getMessage());
+                    return;
+                }
                 if (pixels.length != Params.IN_SIZE) {
                     error(f.requestId, "imagen invalida");
                     return;
