@@ -46,7 +46,7 @@ Tipos de dato dentro del payload:
 |---|---|---|---|
 | 0x01 | REGISTER | nodo → srv | str lenguaje, i32 núcleos, i32 hilos, str hostname |
 | 0x02 | REGISTER_OK | srv → nodo | i32 nodeId |
-| 0x03 | HEARTBEAT | nodo → srv | i32 reservado (los tres nodos envían 0) (cada 2 s, id 0, sin respuesta) |
+| 0x03 | HEARTBEAT | nodo → srv | i32 tareas pendientes (Go y Python envían su cola; Java envía 0). Cada 2 s, id 0, sin respuesta. El servidor solo lo usa como señal de vida |
 | 0x04 | BYE | ambos | vacío; luego se cierra la conexión |
 | 0x10 | SET_WEIGHTS | srv → nodo | u8 slot, i32 versión, f32[] pesos (sin respuesta) |
 | 0x11 | TRAIN_TASK | srv → nodo | u8 slot, i32 versión, i32 n, n bytes etiquetas, pixeles |

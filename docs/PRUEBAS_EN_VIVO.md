@@ -156,8 +156,8 @@ Lo más típico es cambiar los hilos, el lote, el puerto o agregar un mensaje. S
 ### P10. "Corran el servidor en la nube" (opcional)
 - Servidor en Google Cloud, nodos en las 3 laptops (pueden estar en casas distintas) y el chat desde
   cualquier PC. Ver [NUBE_GCP.md](NUBE_GCP.md).
-- **Qué explicar:** por internet aparece la latencia de red. Se compara `carga_latencia.png` LAN
-  vs nube.
+- **Qué explicar:** por internet aparece la latencia de red Lima ↔ Santiago. Las mediciones del
+  informe se hicieron así (`results/sesion_3laptops/`, `carga_latencia.png`).
 
 ## 4. Dónde está cada concepto (para responder rápido)
 
@@ -183,7 +183,7 @@ Lo más típico es cambiar los hilos, el lote, el puerto o agregar un mensaje. S
 - **Speedup** = img/s / img/s secuencial del mismo lenguaje. **Eficiencia** = speedup / núcleos.
   La eficiencia baja al subir los nodos: aumenta el costo fijo de mandar pesos (~1 MB por nodo y
   por lote) y de sumar gradientes, mientras el cómputo por nodo se achica.
-- **Costo de comunicación:** el servidor ahora separa, lote a lote, el tiempo del nodo más lento
+- **Costo de comunicación:** el servidor separa, lote a lote, el tiempo del nodo más lento
   (cómputo) del resto (enviar, esperar y agregar). Con 3 laptops por internet fue entre el 66 % y
   el 97 % del tiempo (informe, sección 4.2; `results/sesion_3laptops/distribuido.csv`). Python es
   la excepción: como calcula más lento, la red pesa menos en su tiempo total. Por eso un lote más grande (`BATCH=256`) mejora la eficiencia
@@ -214,7 +214,7 @@ Lo más típico es cambiar los hilos, el lote, el puerto o agregar un mensaje. S
 | `hosts` dice 1 con 3 nodos | Los 3 nodos corren en la misma laptop; para el distribuido van en laptops distintas |
 | Mediciones irregulares | La laptop está con batería o en ahorro de energía: enchufarla y usar "Alto rendimiento" |
 | Python recibe 0 imágenes | Es el reparto proporcional con lotes chicos; con `--batch 256` le toca algo |
-| El entrenamiento se nota lento por internet | Es lo esperado: entrenar en la LAN y dejar la nube para chat y carga |
+| El entrenamiento se nota lento por internet | Es lo esperado: cada lote manda ~1 MB de pesos a cada nodo. Con `--batch 256` la red pesa menos |
 
 ## 7. Guion sugerido (10 minutos)
 
