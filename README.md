@@ -55,7 +55,6 @@ laptops.
 | `imagenes_para_probar/` | Fotos para probar el chat |
 | `results/sesion_3laptops/` | Mediciones con las 3 laptops del equipo: CSV, registros de cada ronda y gráficas (ver "Evaluación") |
 | `docs/` | Documentos de la tabla de arriba |
-| `minimo-alternativo/` | **Plan B:** la misma idea en 6 archivos (~1 700 líneas en vez de ~9 400), con su propio protocolo; ver su [README](minimo-alternativo/README.md). No se mezcla con esta versión |
 
 ## Requisitos
 

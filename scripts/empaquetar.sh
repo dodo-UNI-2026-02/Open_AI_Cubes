@@ -4,8 +4,8 @@
 #      scripts/empaquetar.sh kit       -> dist/OpenAICubes_kit.zip      (listo para correr en las laptops Windows o en Linux)
 #
 # entrega: solo fuentes (.java .go .py), scripts, pesos y datos de prueba, docs, resultados medidos,
-#          fotos de prueba y, si se indican con PDFS, los PDF de informe, presentación y notas. El plan B (minimo-alternativo/)
-#          no va: se entrega aparte si se usa. Es lo que pide el enunciado; nada de .git, out/ ni binarios.
+#          fotos de prueba y, si se indican con PDFS, los PDF de informe, presentación y notas.
+#          Es lo que pide el enunciado; nada de .git, out/ ni binarios.
 #          train.bin (61 MB) no va por defecto: está en el Release v1.0. Para incluirlo: CON_TRAIN=1
 # kit:     lo mismo pero ya compilado: clases Java 8 en out/ y nodo Go para Windows y Linux x86-64, más
 #          train.bin si existe. Se copia a cada laptop y no hace falta compilar.

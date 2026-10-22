@@ -13,6 +13,5 @@ para_release/
 results/*.csv
 results/*.png
 data/model_anterior.bin
-data/model_minimo.bin
 results/chat_history.txt
 dist/
